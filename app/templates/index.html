@@ -1,0 +1,852 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Image Gallery Platform{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+  /* Hero Section */
+  .hero-section {
+    background-color: #f8f9fa;
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .hero-title {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero-description {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 2.5rem;
+    max-width: 90%;
+  }
+  
+  .hero-search {
+    position: relative;
+    max-width: 500px;
+  }
+  
+  .hero-search input {
+    height: 60px;
+    border-radius: 30px;
+    border: none;
+    padding: 0 30px;
+    font-size: 1rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    width: 100%;
+  }
+  
+  .hero-search button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #2c5282;
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .hero-search button:hover {
+    background-color: #1a365d;
+  }
+  
+  .hero-image-wrapper {
+    position: relative;
+  }
+  
+  .hero-image {
+    border-radius: 10px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 2;
+  }
+  
+  .hero-shape {
+    position: absolute;
+    border: 2px solid #4a69dd;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  
+  .hero-shape-1 {
+    width: 500px;
+    height: 500px;
+    top: -50px;
+    right: -100px;
+  }
+  
+  .hero-stats {
+    margin-top: 3rem;
+  }
+  
+  .hero-stat-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .hero-stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-right: 0.5rem;
+  }
+  
+  .hero-stat-text {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  /* Services Section */
+  .services-section {
+    padding: 5rem 0;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 3rem;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .service-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+  
+  .service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+  }
+  
+  .service-icon {
+    width: 70px;
+    height: 70px;
+    background-color: #f0f4f8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    color: #2c5282;
+  }
+  
+  .service-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .service-description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+  
+  .service-link {
+    color: #2c5282;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+  
+  .service-link i {
+    margin-left: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .service-link:hover i {
+    transform: translateX(5px);
+  }
+  
+  /* Gallery Section */
+  .gallery-section {
+    padding: 5rem 0;
+    background-color: #f8f9fa;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+  }
+  
+  .view-all {
+    color: #2c5282;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+  
+  .view-all i {
+    margin-left: 0.5rem;
+  }
+  
+  .gallery-card {
+    background-color: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+  
+  .gallery-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+  }
+  
+  .gallery-image-wrapper {
+    height: 220px;
+    overflow: hidden;
+  }
+  
+  .gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s ease;
+  }
+  
+  .gallery-card:hover .gallery-image {
+    transform: scale(1.1);
+  }
+  
+  .gallery-content {
+    padding: 1.5rem;
+  }
+  
+  .gallery-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .gallery-info {
+    display: flex;
+    margin-bottom: 1rem;
+  }
+  
+  .gallery-info-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  .gallery-info-item i {
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .gallery-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+  
+  .gallery-button {
+    background-color: #2c5282;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .gallery-button:hover {
+    background-color: #1a365d;
+  }
+  
+  /* Testimonial Section */
+  .testimonial-section {
+    padding: 5rem 0;
+  }
+  
+  .testimonial-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .testimonial-content {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: #555;
+    font-style: italic;
+  }
+  
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+  }
+  
+  .testimonial-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 1rem;
+  }
+  
+  .testimonial-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .testimonial-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  
+  .testimonial-info p {
+    font-size: 0.9rem;
+    color: #777;
+    margin: 0;
+  }
+  
+  .testimonial-rating {
+    color: #ffb400;
+    margin-left: auto;
+  }
+  
+  /* FAQ Section */
+  .faq-section {
+    padding: 5rem 0;
+    background-color: #f9f9f9;
+  }
+  
+  .faq-item {
+    background-color: white;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  
+  .faq-header {
+    padding: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .faq-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .faq-body {
+    padding: 0 1.5rem 1.5rem;
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, #2c5282, #1a365d);
+    color: white;
+    text-align: center;
+  }
+  
+  .cta-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cta-description {
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .cta-button {
+    background-color: white;
+    color: #2c5282;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background-color: #f5f5f5;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  /* Dark mode adjustments */
+  .dark-mode .hero-section {
+    background-color: #0d2438;
+  }
+  
+  .dark-mode .hero-title {
+    color: #f1f1f1;
+  }
+  
+  .dark-mode .hero-description {
+    color: #a0aec0;
+  }
+  
+  .dark-mode .gallery-section,
+  .dark-mode .faq-section {
+    background-color: #0d2438;
+  }
+  
+  .dark-mode .service-card,
+  .dark-mode .gallery-card,
+  .dark-mode .testimonial-card,
+  .dark-mode .faq-item {
+    background-color: #1a365d;
+  }
+  
+  .dark-mode .service-icon {
+    background-color: #2c5282;
+    color: #f1f1f1;
+  }
+  
+  .dark-mode .service-title,
+  .dark-mode .gallery-title,
+  .dark-mode .faq-title {
+    color: #f1f1f1;
+  }
+  
+  .dark-mode .service-description,
+  .dark-mode .gallery-info-item,
+  .dark-mode .testimonial-content {
+    color: #a0aec0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 hero-content">
+        <h1 class="hero-title">Find the perfect visuals for your collection</h1>
+        <p class="hero-description">You can easily find a variety of images that suit your needs, so forget all the difficulties in building your visual library</p>
+        
+        <div class="hero-search">
+          <form action="{{ url_for('search') }}" method="get">
+            <input type="text" name="query" placeholder="Search images, tags, or categories...">
+            <button type="submit"><i class="bi bi-search"></i></button>
+          </form>
+        </div>
+        
+        <div class="hero-stats d-flex mt-5">
+          <div class="hero-stat-item me-4">
+            <span class="hero-stat-number">5K+</span>
+            <span class="hero-stat-text">Images</span>
+          </div>
+          <div class="hero-stat-item me-4">
+            <span class="hero-stat-number">2K+</span>
+            <span class="hero-stat-text">Users</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="hero-stat-number">4.9</span>
+            <span class="hero-stat-text">Rating</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="hero-image-wrapper">
+          <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="Hero Image" class="img-fluid hero-image">
+          <div class="hero-shape hero-shape-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services Section -->
+<section class="services-section">
+  <div class="container">
+    <h2 class="section-title text-center">We Provide Services</h2>
+    
+    <div class="row g-4">
+      <div class="col-md-4" data-aos="fade-up">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-images"></i>
+          </div>
+          <h3 class="service-title">Store & Organize</h3>
+          <p class="service-description">Upload your images and organize them with our intuitive tagging and folder system for quick retrieval.</p>
+          <a href="{{ url_for('upload') if session.get('user_id') else url_for('login') }}" class="service-link">
+            Learn More <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-share"></i>
+          </div>
+          <h3 class="service-title">Share & Collaborate</h3>
+          <p class="service-description">Easily share your visual collections with others and collaborate on projects with flexible privacy settings.</p>
+          <a href="{{ url_for('search') }}" class="service-link">
+            Learn More <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h3 class="service-title">Secure & Protected</h3>
+          <p class="service-description">Keep your visual assets secure with our advanced protection and backup systems.</p>
+          <a href="{{ url_for('register') if not session.get('user_id') else '#' }}" class="service-link">
+            Learn More <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Showcase Section -->
+<section class="features-showcase py-5 my-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-lg-6 mx-auto text-center">
+                <h2 class="section-title">Why Choose FotoShr</h2>
+                <p class="text-muted">Powerful features designed for photographers and creative professionals</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="feature-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon me-3">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 class="feature-title mb-0">Advanced Privacy Controls</h4>
+                    </div>
+                    <p class="text-muted mb-3">Control exactly who sees your work with granular privacy settings for individuals and groups.</p>
+                    <div class="mt-auto">
+                        <ul class="list-unstyled feature-list">
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Private, public, or invite-only galleries</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Password-protected collections</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Customizable watermarks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="feature-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon me-3">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h4 class="feature-title mb-0">Lightning-Fast Performance</h4>
+                    </div>
+                    <p class="text-muted mb-3">Experience instant loading and seamless navigation, even with high-resolution images.</p>
+                    <div class="mt-auto">
+                        <ul class="list-unstyled feature-list">
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Optimized image delivery network</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Adaptive resolution based on devices</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Background processing for large uploads</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works py-5 my-5 bg-light">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-6 mx-auto text-center">
+                <h2 class="section-title">How FotoShr Works</h2>
+                <p class="text-muted">Your photos from upload to showcase in three simple steps</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="timeline position-relative">
+                    <div class="row g-5">
+                        <div class="col-md-4 text-center">
+                            <div class="timeline-step">
+                                <div class="timeline-number">1</div>
+                                <div class="timeline-icon mb-3">
+                                    <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                                </div>
+                                <h4>Upload</h4>
+                                <p class="text-muted">Upload your photos in batches or individually with our drag-and-drop interface</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="timeline-step">
+                                <div class="timeline-number">2</div>
+                                <div class="timeline-icon mb-3">
+                                    <i class="fas fa-magic fa-2x"></i>
+                                </div>
+                                <h4>Organize</h4>
+                                <p class="text-muted">Create collections, add tags, and organize your photos for easy discovery</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="timeline-step">
+                                <div class="timeline-number">3</div>
+                                <div class="timeline-icon mb-3">
+                                    <i class="fas fa-share-alt fa-2x"></i>
+                                </div>
+                                <h4>Share</h4>
+                                <p class="text-muted">Share your work with clients, friends, or the world with flexible privacy options</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Counter Section -->
+<section class="stats-counter py-5 my-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="stats-wrapper p-4 p-md-5 rounded shadow-sm">
+                    <div class="row g-4 text-center">
+                        <div class="col-6 col-md-3">
+                            <div class="counter-item">
+                                <div class="counter-value h2 mb-2">5M+</div>
+                                <div class="counter-label text-muted">Photos Shared</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="counter-item">
+                                <div class="counter-value h2 mb-2">100K+</div>
+                                <div class="counter-label text-muted">Active Users</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="counter-item">
+                                <div class="counter-value h2 mb-2">195</div>
+                                <div class="counter-label text-muted">Countries</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="counter-item">
+                                <div class="counter-value h2 mb-2">99.9%</div>
+                                <div class="counter-label text-muted">Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="gallery-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Featured Collections</h2>
+      <a href="{{ url_for('search') }}" class="view-all">
+        View All <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    
+    <div class="row g-4">
+      {% if images and images|length > 0 %}
+        {% for image in images[:3] %}
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+          <div class="gallery-card">
+            <div class="gallery-image-wrapper">
+              <img src="{{ url_for('static', filename='uploads/' + image['filename']) }}" class="gallery-image" alt="{{ image['title'] }}">
+            </div>
+            <div class="gallery-content">
+              <h3 class="gallery-title">{{ image['title'] }}</h3>
+              <div class="gallery-info">
+                <div class="gallery-info-item">
+                  <i class="bi bi-calendar"></i>
+                  <span>{{ image['upload_date'].split(' ')[0] }}</span>
+                </div>
+                <div class="gallery-info-item">
+                  <i class="bi bi-eye"></i>
+                  <span>{{ 120 + loop.index0 * 50 }} views</span>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="gallery-tags">
+                  {% if image['tags'] %}
+                    {% for tag in image['tags'].split(',')[:2] %}
+                    <span class="badge bg-light text-dark me-1">{{ tag.strip() }}</span>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+                <a href="{{ url_for('image', image_id=image['id']) }}" class="gallery-button">
+                  View
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="bi bi-image" style="font-size: 3rem; color: #ddd;"></i>
+            <h3 class="mt-3">No Collections Yet</h3>
+            <p class="text-muted">Be the first to upload and create a stunning visual collection</p>
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('upload') }}" class="btn btn-success mt-3">
+              <i class="bi bi-cloud-upload me-2"></i>Upload Images
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-success mt-3">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In to Upload
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Testimonial Section -->
+<section class="testimonial-section">
+  <div class="container">
+    <h2 class="section-title text-center mb-5">What Our Users Say</h2>
+    
+    <div class="row g-4">
+      <div class="col-md-6" data-aos="fade-up">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            "FotoShr provides the clean, minimalist interface I need for my photography portfolio. The focus remains on the images where it belongs."
+          </div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=387&q=80" alt="Avatar">
+            </div>
+            <div class="testimonial-info">
+              <h4>Elena Chen</h4>
+              <p>Professional Photographer</p>
+            </div>
+            <div class="testimonial-rating">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            "Managing my design portfolio has never been easier. The organization features and sharing capabilities are exactly what I needed for my client presentations."
+          </div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">
+              <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=387&q=80" alt="Avatar">
+            </div>
+            <div class="testimonial-info">
+              <h4>Michael Reed</h4>
+              <p>Graphic Designer</p>
+            </div>
+            <div class="testimonial-rating">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="cta-title">Start Building Your Visual Collection Today</h2>
+    <p class="cta-description">Join thousands of professionals who trust FotoShr for their image organization and sharing needs</p>
+    
+    {% if not session.get('user_id') %}
+    <a href="{{ url_for('register') }}" class="cta-button">Get Started for Free</a>
+    {% else %}
+    <a href="{{ url_for('upload') }}" class="cta-button">Upload Your First Image</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS (Animate On Scroll)
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // Initialize Bootstrap popovers
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        });
+        
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,1212 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Search{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+    /* Main layout */
+    .search-header {
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    
+    .search-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-input-wrapper {
+        position: relative;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 3;
+    }
+    
+    .search-input {
+        padding-left: 45px;
+        padding-right: 45px;
+        height: 56px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 6px 20px rgba(55, 125, 255, 0.15);
+        border-color: rgba(55, 125, 255, 0.4);
+    }
+    
+    .clear-search {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        padding: 0;
+        cursor: pointer;
+        z-index: 3;
+    }
+    
+    /* Filter sidebar */
+    .filter-sidebar {
+        border-radius: 16px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .filter-category {
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .filter-category::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 1.5rem;
+        right: 1.5rem;
+        height: 1px;
+        background: linear-gradient(to right, rgba(0,0,0,0.02), rgba(0,0,0,0.05), rgba(0,0,0,0.02));
+    }
+    
+    .filter-category:last-child::after {
+        display: none;
+    }
+    
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+    }
+    
+    .filter-header h5 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .filter-header h5::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -5px;
+        width: 30px;
+        height: 2px;
+        background: #4361ee;
+        transition: width 0.3s;
+    }
+    
+    .filter-header:hover h5::after {
+        width: 100%;
+    }
+    
+    .filter-toggle {
+        color: #adb5bd;
+        transition: all 0.3s;
+    }
+    
+    .filter-toggle.active {
+        transform: rotate(180deg);
+        color: #4361ee;
+    }
+    
+    .filter-options {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .filter-option {
+        margin-bottom: 0.8rem;
+        transition: transform 0.2s;
+    }
+    
+    .filter-option:hover {
+        transform: translateX(5px);
+    }
+    
+    .filter-checkbox {
+        display: none;
+    }
+    
+    .custom-checkbox {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        position: relative;
+        margin-right: 12px;
+        cursor: pointer;
+        vertical-align: middle;
+        transition: all 0.2s;
+        border: 1px solid rgba(0,0,0,0.08);
+    }
+    
+    .filter-checkbox:checked + .custom-checkbox {
+        background: #4361ee;
+        border-color: #4361ee;
+    }
+    
+    .filter-checkbox:checked + .custom-checkbox::after {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 4px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    
+    .filter-label {
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.95rem;
+        color: #495057;
+        transition: color 0.2s;
+        user-select: none;
+    }
+    
+    .filter-checkbox:checked ~ .filter-label {
+        color: #4361ee;
+    }
+    
+    .filter-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 8px;
+        transition: all 0.2s;
+    }
+    
+    .filter-checkbox:checked ~ .filter-badge {
+        background: rgba(67, 97, 238, 0.15);
+        color: #4361ee;
+    }
+    
+    .filter-category-upload .filter-option {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .time-dot {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+    }
+    
+    .time-24h .time-dot {
+        background: #ef476f;
+    }
+    
+    .time-7d .time-dot {
+        background: #ffd166;
+    }
+    
+    .time-30d .time-dot {
+        background: #06d6a0;
+    }
+    
+    .time-year .time-dot {
+        background: #118ab2;
+    }
+    
+    .upload-button {
+        display: block;
+        background: linear-gradient(135deg, #4361ee, #7b86f6);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin-top: 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .upload-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(67, 97, 238, 0.2);
+    }
+    
+    .upload-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #3a56e4, #667ef2);
+        transition: opacity 0.3s ease;
+        z-index: -1;
+        opacity: 0;
+    }
+    
+    .upload-button:hover::before {
+        opacity: 1;
+    }
+    
+    /* Filter chips */
+    .filter-chips {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+    }
+    
+    .filter-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.75rem;
+        background: rgba(67, 97, 238, 0.08);
+        color: #4361ee;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .chip-remove {
+        cursor: pointer;
+        color: #4361ee;
+        border: none;
+        background: none;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+    
+    /* Search results */
+    .search-results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .results-count {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .sort-dropdown button {
+        background: white;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .search-result-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 1rem;
+        border-radius: 16px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .search-result-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+    
+    .card-img-top-container {
+        position: relative;
+        overflow: hidden;
+        padding-top: 70%;
+    }
+    
+    .card-img-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .card-img-top-container:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .card-img-top-container:hover .img-overlay {
+        opacity: 1;
+    }
+    
+    .img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .img-overlay .btn {
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+    }
+    
+    .card-img-top-container:hover .img-overlay .btn {
+        transform: translateY(0);
+    }
+    
+    .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+    
+    .tag-badge {
+        font-size: 0.75rem;
+        background: #f8f9fa;
+        color: #4a5568;
+        padding: 0.25rem 0.5rem;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    
+    .tag-badge:hover {
+        background: #e9ecef;
+        text-decoration: none;
+    }
+    
+    /* Empty state & Find the perfect image section */
+    .no-results {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .discovery-section {
+        background: linear-gradient(135deg, #f5f7ff, #eef4ff);
+        padding: 3.5rem 2rem;
+        border-radius: 16px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .discovery-section::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(67, 97, 238, 0.1);
+    }
+    
+    .discovery-section::after {
+        content: '';
+        position: absolute;
+        bottom: -100px;
+        left: -100px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .discovery-icon {
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, #4361ee, #7b86f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .popular-searches {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .popular-search-tag {
+        background: white;
+        color: #4361ee;
+        border: 1px solid rgba(67, 97, 238, 0.3);
+        border-radius: 20px;
+        padding: 0.35rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+    
+    .popular-search-tag:hover {
+        background: #4361ee;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+    }
+    
+    .recent-uploads {
+        margin-top: 3rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        position: relative;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background: #4361ee;
+        border-radius: 3px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 991.98px) {
+        .filter-sidebar {
+            margin-bottom: 2rem;
+        }
+    }
+    
+    /* Dark mode */
+    .dark-mode .filter-sidebar,
+    .dark-mode .search-result-card,
+    .dark-mode .no-results {
+        background: #1a2234;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border-color: rgba(255,255,255,0.05);
+    }
+    
+    .dark-mode .discovery-section {
+        background: linear-gradient(135deg, #1a2234, #131a29);
+    }
+    
+    .dark-mode .popular-search-tag {
+        background: #1f293b;
+        color: rgba(255,255,255,0.8);
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    .dark-mode .popular-search-tag:hover {
+        background: #4361ee;
+        color: white;
+    }
+    
+    .dark-mode .filter-category::after {
+        background: linear-gradient(to right, rgba(255,255,255,0.03), rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+    }
+    
+    .dark-mode .filter-header h5 {
+        color: white;
+    }
+    
+    .dark-mode .filter-header h5::after {
+        background: #4361ee;
+    }
+    
+    .dark-mode .custom-checkbox {
+        background: #2d3748;
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    .dark-mode .filter-label {
+        color: #cbd5e0;
+    }
+    
+    .dark-mode .filter-badge {
+        background: #2d3748;
+        color: #a0aec0;
+    }
+    
+    .dark-mode .filter-checkbox:checked ~ .filter-badge {
+        background: rgba(67, 97, 238, 0.25);
+        color: #a3bffa;
+    }
+    
+    .dark-mode .filter-chip {
+        background: rgba(67, 97, 238, 0.2);
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .dark-mode .tag-badge {
+        background: #2d3748;
+        color: rgba(255,255,255,0.8);
+    }
+    
+    .dark-mode .tag-badge:hover {
+        background: #38445b;
+    }
+    
+    .dark-mode .sort-dropdown button {
+        background: #1f293b;
+        border-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Search Header -->
+    <div class="search-header">
+        <h1 class="h3 fw-bold mb-3"><i class="bi bi-search me-2 text-primary"></i>Image Search</h1>
+        
+        <div class="search-container mt-3">
+            <form action="{{ url_for('search') }}" method="get" id="search-form">
+                <div class="search-input-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="form-control search-input" 
+                           name="query" id="search-input"
+                           placeholder="Search for images by keyword, tags or description" 
+                           value="{{ query }}" autofocus>
+                    {% if query %}
+                    <button type="button" class="clear-search" id="clear-search" aria-label="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if query %}
+    <!-- Active Filters -->
+    <div class="filter-chips">
+        <div class="filter-chip">
+            <span>{{ query }}</span>
+            <button class="chip-remove" id="remove-query" aria-label="Remove filter">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <a href="{{ url_for('search') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Clear all filters</a>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <div class="filter-category">
+                    <div class="filter-header" data-bs-toggle="collapse" data-bs-target="#filterCategory">
+                        <h5>Categories</h5>
+                        <i class="bi bi-chevron-down filter-toggle"></i>
+                    </div>
+                    <div id="filterCategory" class="collapse show">
+                        <ul class="filter-options">
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="cat-nature" name="categories" value="nature">
+                                <label class="custom-checkbox" for="cat-nature"></label>
+                                <label class="filter-label" for="cat-nature">Nature</label>
+                                <span class="filter-badge">18</span>
+                            </li>
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="cat-portrait" name="categories" value="portrait">
+                                <label class="custom-checkbox" for="cat-portrait"></label>
+                                <label class="filter-label" for="cat-portrait">Portrait</label>
+                                <span class="filter-badge">7</span>
+                            </li>
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="cat-architecture" name="categories" value="architecture">
+                                <label class="custom-checkbox" for="cat-architecture"></label>
+                                <label class="filter-label" for="cat-architecture">Architecture</label>
+                                <span class="filter-badge">12</span>
+                            </li>
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="cat-travel" name="categories" value="travel">
+                                <label class="custom-checkbox" for="cat-travel"></label>
+                                <label class="filter-label" for="cat-travel">Travel</label>
+                                <span class="filter-badge">24</span>
+                            </li>
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="cat-food" name="categories" value="food">
+                                <label class="custom-checkbox" for="cat-food"></label>
+                                <label class="filter-label" for="cat-food">Food</label>
+                                <span class="filter-badge">9</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="filter-category filter-category-upload">
+                    <div class="filter-header" data-bs-toggle="collapse" data-bs-target="#filterTime">
+                        <h5>Upload Date</h5>
+                        <i class="bi bi-chevron-down filter-toggle"></i>
+                    </div>
+                    <div id="filterTime" class="collapse show">
+                        <ul class="filter-options">
+                            <li class="filter-option time-24h">
+                                <span class="time-dot"></span>
+                                <input type="radio" class="filter-checkbox" id="time-24h" name="time" value="24h">
+                                <label class="custom-checkbox" for="time-24h"></label>
+                                <label class="filter-label" for="time-24h">Last 24 hours</label>
+                            </li>
+                            <li class="filter-option time-7d">
+                                <span class="time-dot"></span>
+                                <input type="radio" class="filter-checkbox" id="time-7d" name="time" value="7d">
+                                <label class="custom-checkbox" for="time-7d"></label>
+                                <label class="filter-label" for="time-7d">Last 7 days</label>
+                            </li>
+                            <li class="filter-option time-30d">
+                                <span class="time-dot"></span>
+                                <input type="radio" class="filter-checkbox" id="time-30d" name="time" value="30d">
+                                <label class="custom-checkbox" for="time-30d"></label>
+                                <label class="filter-label" for="time-30d">Last 30 days</label>
+                            </li>
+                            <li class="filter-option time-year">
+                                <span class="time-dot"></span>
+                                <input type="radio" class="filter-checkbox" id="time-year" name="time" value="year">
+                                <label class="custom-checkbox" for="time-year"></label>
+                                <label class="filter-label" for="time-year">Last year</label>
+                            </li>
+                            <li class="filter-option time-clear" style="margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px;">
+                                <span class="time-dot" style="background-color: #ddd;"></span>
+                                <input type="radio" class="filter-checkbox" id="time-clear" name="time" value="">
+                                <label class="custom-checkbox" for="time-clear"></label>
+                                <label class="filter-label" for="time-clear">No time filter</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="filter-category">
+                    <div class="filter-header" data-bs-toggle="collapse" data-bs-target="#filterSearch">
+                        <h5>Search In</h5>
+                        <i class="bi bi-chevron-down filter-toggle"></i>
+                    </div>
+                    <div id="filterSearch" class="collapse show">
+                        <ul class="filter-options">
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="search-title" name="search_in" value="title" checked>
+                                <label class="custom-checkbox" for="search-title"></label>
+                                <label class="filter-label" for="search-title">Title</label>
+                            </li>
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="search-desc" name="search_in" value="description" checked>
+                                <label class="custom-checkbox" for="search-desc"></label>
+                                <label class="filter-label" for="search-desc">Description</label>
+                            </li>
+                            <li class="filter-option">
+                                <input type="checkbox" class="filter-checkbox" id="search-tags" name="search_in" value="tags" checked>
+                                <label class="custom-checkbox" for="search-tags"></label>
+                                <label class="filter-label" for="search-tags">Tags</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                {% if session.get('user_id') %}
+                <div class="filter-category text-center">
+                    <a href="{{ url_for('upload') }}" class="upload-button">
+                        <i class="bi bi-cloud-arrow-up me-2"></i>Upload New Image
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="col-lg-9">
+            {% if query %}
+            <div class="search-results-header">
+                <div class="results-count">
+                    {{ images|length }} result{% if images|length != 1 %}s{% endif %} for "{{ query }}"
+                </div>
+                <div class="sort-dropdown dropdown">
+                    <button class="dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-sort-down"></i> Sort by: Newest
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="sortDropdown">
+                        <li><a class="dropdown-item active" href="{{ url_for('search', query=query, sort='newest') }}"><i class="bi bi-clock me-2"></i>Newest</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('search', query=query, sort='oldest') }}"><i class="bi bi-clock-history me-2"></i>Oldest</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('search', query=query, sort='most_viewed') }}"><i class="bi bi-eye me-2"></i>Most viewed</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('search', query=query, sort='most_liked') }}"><i class="bi bi-heart me-2"></i>Most liked</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if images %}
+            <div class="row g-4">
+                {% for image in images %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="search-result-card h-100 animate-on-scroll" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                        <div class="card-img-top-container">
+                            <a href="{{ url_for('image', image_id=image.id) }}">
+                                <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                                     class="card-img-top" alt="{{ image.title }}">
+                                <div class="img-overlay">
+                                    <button class="btn btn-light rounded-pill px-3">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="card-body p-3">
+                            <h5 class="card-title mb-1 text-truncate">
+                                <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none text-dark">
+                                    {{ image.title }}
+                                </a>
+                            </h5>
+                            <p class="card-text small text-muted mb-2 text-truncate">{{ image.description|default('')|truncate(60) }}</p>
+                            {% if image.tags %}
+                            <div class="tags-list mt-2">
+                                {% for tag in image.tags.split(',')[:3] %}
+                                <a href="{{ url_for('search', query=tag.strip()) }}" 
+                                   class="tag-badge text-decoration-none">{{ tag.strip() }}</a>
+                                {% endfor %}
+                                {% if image.tags.split(',')|length > 3 %}
+                                <span class="tag-badge">+{{ image.tags.split(',')|length - 3 }}</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent py-2 px-3 border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ image.upload_date.split()[0] }}</small>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <small class="text-muted"><i class="bi bi-eye me-1"></i>{{ image.views|default(0) }}</small>
+                                    <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                                       download="{{ image.title }}.{{ image.filename.split('.')[-1] }}"
+                                       class="btn btn-sm btn-light rounded-circle" 
+                                       title="Download">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-results animate-on-scroll" data-aos="fade-up">
+                <i class="bi bi-search"></i>
+                <h3 class="mt-2">No results found</h3>
+                <p class="text-muted mb-4">We couldn't find any images matching "<strong>{{ query }}</strong>"</p>
+                <a href="{{ url_for('search') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>Clear Search
+                </a>
+            </div>
+            {% endif %}
+            {% else %}
+            <!-- Modern "Find the perfect image" section -->
+            <div class="discovery-section animate-on-scroll" data-aos="fade-up">
+                <div class="discovery-icon">
+                    <i class="bi bi-image-search"></i>
+                </div>
+                <h2 class="mt-2 mb-3 fw-bold">Find the perfect image</h2>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">Discover amazing photos from our diverse collection. Use the search bar above or try one of our popular suggestions.</p>
+                
+                <div class="popular-searches">
+                    <a href="{{ url_for('search', query='nature') }}" class="popular-search-tag text-decoration-none">Nature</a>
+                    <a href="{{ url_for('search', query='architecture') }}" class="popular-search-tag text-decoration-none">Architecture</a>
+                    <a href="{{ url_for('search', query='travel') }}" class="popular-search-tag text-decoration-none">Travel</a>
+                    <a href="{{ url_for('search', query='portrait') }}" class="popular-search-tag text-decoration-none">Portrait</a>
+                    <a href="{{ url_for('search', query='food') }}" class="popular-search-tag text-decoration-none">Food</a>
+                    <a href="{{ url_for('search', query='landscape') }}" class="popular-search-tag text-decoration-none">Landscape</a>
+                </div>
+                
+                <a href="{{ url_for('index') }}" class="btn btn-primary rounded-pill px-4 py-2">
+                    <i class="bi bi-house me-2"></i>Return Home
+                </a>
+            </div>
+            
+            <!-- Recent Uploads Section (Show some images even when not searching) -->
+            <div class="recent-uploads">
+                <h3 class="section-title animate-on-scroll" data-aos="fade-up">Recent Uploads</h3>
+                
+                {% set recent_images = [] %}
+                {% for image in images[:6] %}
+                    {% set recent_images = recent_images.append(image) %}
+                {% endfor %}
+                
+                <div class="row g-4 mt-4">
+                    {% for image in recent_images %}
+                    <div class="col-md-6 col-xl-4">
+                        <div class="search-result-card h-100 animate-on-scroll" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                            <div class="card-img-top-container">
+                                <a href="{{ url_for('image', image_id=image.id) }}">
+                                    <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                                         class="card-img-top" alt="{{ image.title }}">
+                                    <div class="img-overlay">
+                                        <button class="btn btn-light rounded-pill px-3">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </button>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="card-body p-3">
+                                <h5 class="card-title mb-1 text-truncate">
+                                    <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none text-dark">
+                                        {{ image.title }}
+                                    </a>
+                                </h5>
+                                <p class="card-text small text-muted mb-2 text-truncate">{{ image.description|default('')|truncate(60) }}</p>
+                                {% if image.tags %}
+                                <div class="tags-list mt-2">
+                                    {% for tag in image.tags.split(',')[:3] %}
+                                    <a href="{{ url_for('search', query=tag.strip()) }}" 
+                                       class="tag-badge text-decoration-none">{{ tag.strip() }}</a>
+                                    {% endfor %}
+                                    {% if image.tags.split(',')|length > 3 %}
+                                    <span class="tag-badge">+{{ image.tags.split(',')|length - 3 }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer bg-transparent py-2 px-3 border-top-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ image.upload_date.split()[0] }}</small>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <small class="text-muted"><i class="bi bi-eye me-1"></i>{{ image.views|default(0) }}</small>
+                                        <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                                           download="{{ image.title }}.{{ image.filename.split('.')[-1] }}"
+                                           class="btn btn-sm btn-light rounded-circle" 
+                                           title="Download"
+                                           onclick="event.stopPropagation();">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted mb-0">No images have been uploaded yet.</p>
+                        {% if session.get('user_id') %}
+                        <div class="mt-3">
+                            <a href="{{ url_for('upload') }}" class="btn btn-outline-primary rounded-pill">
+                                <i class="bi bi-cloud-arrow-up me-2"></i>Upload the first image
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS if it exists
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 800,
+                once: true,
+                offset: 50
+            });
+        }
+
+        // Filter toggle functionality
+        document.querySelectorAll('.filter-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const icon = this.querySelector('.filter-toggle');
+                icon.classList.toggle('bi-chevron-up');
+                icon.classList.toggle('bi-chevron-down');
+            });
+        });
+
+        // Clear search button
+        const clearSearchBtn = document.getElementById('clear-search');
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                window.location.href = "{{ url_for('search') }}";
+            });
+        }
+
+        // Remove chip functionality
+        document.querySelectorAll('.remove-chip').forEach(button => {
+            button.addEventListener('click', function() {
+                const chipValue = this.dataset.value;
+                window.location.search = window.location.search
+                    .replace(new RegExp(`[?&]query=${encodeURIComponent(chipValue)}`, 'i'), '')
+                    .replace(/^&/, '?');
+            });
+        });
+
+        // Apply filters function
+        function applyFilters() {
+            // Get current URL and parameters
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+            
+            // Keep the original query
+            const originalQuery = params.get('query');
+            
+            // Start with a fresh params object but keep the original query
+            const newParams = new URLSearchParams();
+            if (originalQuery) {
+                newParams.set('query', originalQuery);
+            }
+            
+            // Add selected categories
+            const selectedCategories = [];
+            document.querySelectorAll('input[name="categories"]:checked').forEach(checkbox => {
+                selectedCategories.push(checkbox.value);
+            });
+            if (selectedCategories.length > 0) {
+                newParams.set('categories', selectedCategories.join(','));
+            }
+            
+            // Add time filter (only one can be selected since they're radio buttons)
+            const timeFilter = document.querySelector('input[name="time"]:checked');
+            if (timeFilter && timeFilter.value) {
+                newParams.set('time', timeFilter.value);
+            }
+            
+            // Add search fields
+            const searchInFields = [];
+            document.querySelectorAll('input[name="search_in"]:checked').forEach(checkbox => {
+                searchInFields.push(checkbox.value);
+            });
+            if (searchInFields.length > 0) {
+                newParams.set('search_in', searchInFields.join(','));
+            }
+            
+            // Add sort parameter if it exists
+            const sortParam = params.get('sort');
+            if (sortParam) {
+                newParams.set('sort', sortParam);
+            } else {
+                // Default to newest if no sort parameter exists
+                newParams.set('sort', 'newest');
+            }
+            
+            // Update URL and reload page
+            window.location.href = `${url.pathname}?${newParams.toString()}`;
+        }
+
+        // Initialize filters from URL
+        function initializeFiltersFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Set category checkboxes
+            const categories = params.get('categories');
+            if (categories) {
+                const categoryList = categories.split(',');
+                categoryList.forEach(category => {
+                    const checkbox = document.querySelector(`input[name="categories"][value="${category}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+            
+            // Set time radio button
+            const timeFilter = params.get('time');
+            if (timeFilter) {
+                const radio = document.querySelector(`input[name="time"][value="${timeFilter}"]`);
+                if (radio) {
+                    radio.checked = true;
+                }
+            } else {
+                // If no time filter, select the "No time filter" option
+                const clearTimeRadio = document.querySelector('input[name="time"][value=""]');
+                if (clearTimeRadio) {
+                    clearTimeRadio.checked = true;
+                }
+            }
+            
+            // Set search in checkboxes
+            const searchIn = params.get('search_in');
+            if (searchIn) {
+                const searchInList = searchIn.split(',');
+                // Uncheck all first
+                document.querySelectorAll('input[name="search_in"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                // Then check only the selected ones
+                searchInList.forEach(field => {
+                    const checkbox = document.querySelector(`input[name="search_in"][value="${field}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+        }
+
+        // Initialize filters from URL params on page load
+        initializeFiltersFromURL();
+
+        // Add event listeners for filter changes
+        document.querySelectorAll('input[name="categories"], input[name="time"], input[name="search_in"]')
+            .forEach(input => {
+                input.addEventListener('change', applyFilters);
+            });
+
+        // Sort dropdown functionality
+        document.querySelectorAll('.sort-dropdown .dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get current URL and parameters
+                const url = new URL(window.location.href);
+                const params = new URLSearchParams(url.search);
+                
+                // Get the sort value from the clicked item's text
+                let sortValue = this.textContent.trim().toLowerCase();
+                
+                // Map the displayed text to the expected parameter values
+                if (sortValue === 'newest') {
+                    sortValue = 'newest';
+                } else if (sortValue === 'oldest') {
+                    sortValue = 'oldest';
+                } else if (sortValue === 'most viewed') {
+                    sortValue = 'most_viewed';
+                } else if (sortValue === 'most liked') {
+                    sortValue = 'most_liked';
+                }
+                
+                // Set the sort parameter
+                params.set('sort', sortValue);
+                
+                // Update URL and reload page
+                window.location.href = `${url.pathname}?${params.toString()}`;
+            });
+        });
+
+        // Update sort dropdown button text based on URL parameter
+        function updateSortDropdownText() {
+            const params = new URLSearchParams(window.location.search);
+            const sortParam = params.get('sort');
+            
+            if (sortParam) {
+                const sortDropdownButton = document.querySelector('#sortDropdown');
+                if (sortDropdownButton) {
+                    let sortText = 'Newest'; // Default text
+                    
+                    // Map parameter values to display text
+                    if (sortParam === 'oldest') {
+                        sortText = 'Oldest';
+                    } else if (sortParam === 'most_viewed') {
+                        sortText = 'Most viewed';
+                    } else if (sortParam === 'most_liked') {
+                        sortText = 'Most liked';
+                    }
+                    
+                    // Update button text
+                    sortDropdownButton.innerHTML = `<i class="bi bi-sort-down"></i> Sort by: ${sortText}`;
+                    
+                    // Update active class on dropdown items
+                    document.querySelectorAll('.sort-dropdown .dropdown-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.textContent.trim().toLowerCase() === sortText.toLowerCase()) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Call the function to update dropdown text on page load
+        updateSortDropdownText();
+
+        // Popular tags animation
+        const popularTags = document.querySelectorAll('.popular-tag');
+        popularTags.forEach((tag, index) => {
+            tag.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Handle search input pressing Enter
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('search-form').submit();
+                }
+            });
+        }
+
+        // Make search result cards clickable
+        document.querySelectorAll('.search-result-card').forEach(card => {
+            const imageLink = card.dataset.link || card.querySelector('a').getAttribute('href');
+            if (imageLink) {
+                card.addEventListener('click', function(e) {
+                    // Don't navigate if user clicked on a button or link
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || 
+                        e.target.closest('button') || e.target.closest('a')) {
+                        return;
+                    }
+                    window.location.href = imageLink;
+                });
+            }
+        });
+
+        // Image hover effect
+        document.querySelectorAll('.image-card img').forEach(img => {
+            img.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            img.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
+{% endblock %} 

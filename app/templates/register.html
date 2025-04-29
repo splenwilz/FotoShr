@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="text-center mb-4 animate-on-scroll" data-aos="fade-up">
+            <i class="bi bi-person-plus-fill text-primary" style="font-size: 3rem;"></i>
+            <h1 class="h2 mt-3">Create Account</h1>
+            <p class="text-muted">Join FotoShr to share your beautiful photos</p>
+        </div>
+        
+        <div class="card border-0 shadow-sm animate-on-scroll" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-body p-4">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0" 
+                                  id="username" name="username" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control border-start-0 ps-0" 
+                                  id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" class="form-control border-start-0 ps-0" 
+                                  id="password" name="password" required>
+                            <button class="btn btn-outline-secondary border-start-0" 
+                                   type="button" id="toggle-password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength mt-1 d-none" id="password-strength">
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" id="password-strength-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted" id="password-strength-text">Password strength</small>
+                        </div>
+                    </div>
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-transparent py-3">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-decoration-none">Sign in</a></p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4 animate-on-scroll" data-aos="fade-up" data-aos-delay="200">
+            <p class="text-muted">
+                <small>By creating an account, you agree to our <a href="#" class="text-decoration-none">Terms</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>.</small>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Password toggle
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                const icon = this.querySelector('i');
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        }
+        
+        // Password strength checker
+        if (passwordInput) {
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strengthText = document.getElementById('password-strength-text');
+            const strengthContainer = document.getElementById('password-strength');
+            
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length === 0) {
+                    strengthContainer.classList.add('d-none');
+                    return;
+                }
+                
+                strengthContainer.classList.remove('d-none');
+                
+                // Length check
+                if (password.length >= 8) strength += 1;
+                
+                // Complexity checks
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+                
+                // Update UI
+                switch (strength) {
+                    case 0:
+                    case 1:
+                        strengthBar.style.width = '20%';
+                        strengthBar.className = 'progress-bar bg-danger';
+                        strengthText.textContent = 'Very Weak';
+                        break;
+                    case 2:
+                        strengthBar.style.width = '40%';
+                        strengthBar.className = 'progress-bar bg-warning';
+                        strengthText.textContent = 'Weak';
+                        break;
+                    case 3:
+                        strengthBar.style.width = '60%';
+                        strengthBar.className = 'progress-bar bg-info';
+                        strengthText.textContent = 'Medium';
+                        break;
+                    case 4:
+                        strengthBar.style.width = '80%';
+                        strengthBar.className = 'progress-bar bg-primary';
+                        strengthText.textContent = 'Strong';
+                        break;
+                    case 5:
+                        strengthBar.style.width = '100%';
+                        strengthBar.className = 'progress-bar bg-success';
+                        strengthText.textContent = 'Very Strong';
+                        break;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

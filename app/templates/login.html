@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="text-center mb-4 animate-on-scroll" data-aos="fade-up">
+            <i class="bi bi-camera-fill text-primary" style="font-size: 3rem;"></i>
+            <h1 class="h2 mt-3">Welcome Back</h1>
+            <p class="text-muted">Sign in to your FotoShr account</p>
+        </div>
+        
+        <div class="card border-0 shadow-sm animate-on-scroll" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-body p-4">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0" 
+                                  id="username" name="username" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <label for="password" class="form-label">Password</label>
+                            <a href="#" class="text-decoration-none small">Forgot password?</a>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" class="form-control border-start-0 ps-0" 
+                                  id="password" name="password" required>
+                            <button class="btn btn-outline-secondary border-start-0" 
+                                   type="button" id="toggle-password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-transparent py-3">
+                <p class="mb-0">Don't have an account? <a href="{{ url_for('register') }}" class="text-decoration-none">Create account</a></p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4 animate-on-scroll" data-aos="fade-up" data-aos-delay="200">
+            <p class="text-muted">
+                <small>By signing in, you agree to our <a href="#" class="text-decoration-none">Terms</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>.</small>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Password toggle
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                const icon = this.querySelector('i');
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Gallery{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Gallery Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="fw-bold display-6">Gallery</h1>
+            <p class="text-muted">Browse and discover amazing images shared by our community.</p>
+        </div>
+        <div class="col-lg-4 d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+            <div class="d-flex align-items-center">
+                <div class="dropdown me-2">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-sort-down me-1"></i>Sort
+                    </button>
+                    <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="sortDropdown">
+                        <li><a class="dropdown-item {% if sort == 'newest' %}active{% endif %}" href="{{ url_for('gallery', sort='newest') }}">Newest First</a></li>
+                        <li><a class="dropdown-item {% if sort == 'oldest' %}active{% endif %}" href="{{ url_for('gallery', sort='oldest') }}">Oldest First</a></li>
+                        <li><a class="dropdown-item {% if sort == 'most_viewed' %}active{% endif %}" href="{{ url_for('gallery', sort='most_viewed') }}">Most Viewed</a></li>
+                        <li><a class="dropdown-item {% if sort == 'most_liked' %}active{% endif %}" href="{{ url_for('gallery', sort='most_liked') }}">Most Liked</a></li>
+                    </ul>
+                </div>
+                <!-- View Toggle Buttons -->
+                <div class="btn-group" role="group" aria-label="View toggle">
+                    <button type="button" id="grid-view-btn" class="btn btn-outline-secondary active" title="Grid View">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                    </button>
+                    <button type="button" id="list-view-btn" class="btn btn-outline-secondary" title="List View">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="mb-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-3">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <form action="{{ url_for('gallery') }}" method="get" id="search-form">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control border-start-0" id="gallery-search" name="query" 
+                                       placeholder="Search in gallery..." value="{{ query|default('') }}" aria-label="Search">
+                                {% if query %}
+                                <a href="{{ url_for('gallery') }}" class="btn btn-outline-secondary border-start-0">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                                {% endif %}
+                                {% if sort %}
+                                <input type="hidden" name="sort" value="{{ sort }}">
+                                {% endif %}
+                                {% if page and page > 1 %}
+                                <input type="hidden" name="page" value="{{ page }}">
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <form action="{{ url_for('gallery') }}" method="get">
+                            <select class="form-select" id="category-filter" name="category" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                <option value="nature" {% if category == 'nature' %}selected{% endif %}>Nature</option>
+                                <option value="travel" {% if category == 'travel' %}selected{% endif %}>Travel</option>
+                                <option value="food" {% if category == 'food' %}selected{% endif %}>Food</option>
+                                <option value="portrait" {% if category == 'portrait' %}selected{% endif %}>Portrait</option>
+                                <option value="architecture" {% if category == 'architecture' %}selected{% endif %}>Architecture</option>
+                                <option value="other" {% if category == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                            {% if query %}
+                            <input type="hidden" name="query" value="{{ query }}">
+                            {% endif %}
+                            {% if sort %}
+                            <input type="hidden" name="sort" value="{{ sort }}">
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <a href="{{ url_for('gallery') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-x-circle me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if query %}
+    <!-- Active Filters Display -->
+    <div class="mb-4">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
+                <span>Search: {{ query }}</span>
+                <a href="{{ url_for('gallery', sort=sort, category=category) }}" class="text-primary ms-2 text-decoration-none">
+                    <i class="bi bi-x"></i>
+                </a>
+            </div>
+            {% if category %}
+            <div class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2">
+                <span>Category: {{ category|capitalize }}</span>
+                <a href="{{ url_for('gallery', sort=sort, query=query) }}" class="text-secondary ms-2 text-decoration-none">
+                    <i class="bi bi-x"></i>
+                </a>
+            </div>
+            {% endif %}
+            <a href="{{ url_for('gallery') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-x-circle me-1"></i>Clear all filters
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if images %}
+    <!-- Gallery Grid View -->
+    <div class="row g-4" id="grid-view">
+        {% for image in images %}
+        <div class="col-md-6 col-lg-4 masonry-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="position-relative" style="padding-top: 75%; overflow: hidden;">
+                    <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none">
+                        <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                             alt="{{ image.title }}">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; justify-content: center;" 
+                             class="img-overlay">
+                            <button class="btn btn-sm btn-light rounded-circle">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </a>
+                    <div class="p-2 position-absolute top-0 end-0">
+                        <div class="d-flex gap-1">
+                            {% if session.get('user_id') and session.get('user_id') == image.user_id %}
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light rounded-circle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="z-index: 100;" onclick="event.stopPropagation();">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" onclick="event.stopPropagation();">
+                                    <li><a class="dropdown-item" href="{{ url_for('edit_image', image_id=image.id) }}">
+                                        <i class="bi bi-pencil me-2 text-primary"></i>Edit
+                                    </a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ image.id }}">
+                                        <i class="bi bi-trash me-2"></i>Delete
+                                    </a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <h5 class="card-title mb-1">
+                        <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none text-dark">
+                            {{ image.title }}
+                        </a>
+                    </h5>
+                    <div class="d-flex align-items-center text-muted small mb-2">
+                        <span><i class="bi bi-person me-1"></i>{{ image.user.username }}</span>
+                        <span class="mx-2">•</span>
+                        <span><i class="bi bi-calendar3 me-1"></i>{{ image.upload_date[:10] if image.upload_date else 'N/A' }}</span>
+                    </div>
+                    {% if image.tags %}
+                    <div class="small mt-2">
+                        {% for tag in image.tags.split(',')[:3] if image.tags %}
+                        <a href="{{ url_for('search', query=tag.strip()) }}" class="badge rounded-pill text-bg-light text-decoration-none me-1">
+                            {{ tag.strip() }}
+                        </a>
+                        {% endfor %}
+                        {% if image.tags and image.tags.split(',') | length > 3 %}
+                        <span class="badge rounded-pill text-bg-light">+{{ image.tags.split(',') | length - 3 }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-top-0 p-3 pt-0">
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <div>
+                            <span class="text-muted me-3"><i class="bi bi-eye me-1"></i>{{ image.views }}</span>
+                            {% if session.get('user_id') %}
+                                {% if image.id in liked_images %}
+                                <form method="post" action="{{ url_for('unlike_image', image_id=image.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-sm text-danger p-0 border-0">
+                                        <i class="bi bi-heart-fill me-1"></i>{{ image.likes or 0 }}
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{{ url_for('like_image', image_id=image.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-sm text-muted p-0 border-0">
+                                        <i class="bi bi-heart me-1"></i>{{ image.likes or 0 }}
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted"><i class="bi bi-heart me-1"></i>{{ image.likes or 0 }}</span>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                           class="btn btn-sm btn-light rounded-circle" 
+                           download="{{ image.title }}.{{ image.filename.split('.')[-1] }}" 
+                           title="Download">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delete Modal for image -->
+            {% if session.get('user_id') and session.get('user_id') == image.user_id %}
+            <div class="modal fade" id="deleteModal{{ image.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Image</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete "<strong>{{ image.title }}</strong>"? This action cannot be undone.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="post" action="{{ url_for('delete_image', image_id=image.id) }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Gallery List View -->
+    <div class="d-none" id="list-view">
+        {% for image in images %}
+        <div class="card mb-3 border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-3">
+                    <div class="position-relative h-100">
+                        <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none">
+                            <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                 alt="{{ image.title }}">
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; justify-content: center;" 
+                                 class="img-overlay">
+                                <button class="btn btn-sm btn-light rounded-circle">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="card-body h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">
+                                <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none text-dark">{{ image.title }}</a>
+                            </h5>
+                            {% if session.get('user_id') and session.get('user_id') == image.user_id %}
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                    <li><a class="dropdown-item" href="{{ url_for('edit_image', image_id=image.id) }}">
+                                        <i class="bi bi-pencil me-2 text-primary"></i>Edit
+                                    </a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModalList{{ image.id }}">
+                                        <i class="bi bi-trash me-2"></i>Delete
+                                    </a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <p class="card-text text-muted small mb-3">{{ image.description|default('')|truncate(150) }}</p>
+                        
+                        <div class="d-flex align-items-center text-muted small mb-2">
+                            <span><i class="bi bi-person me-1"></i>{{ image.user.username }}</span>
+                            <span class="mx-2">•</span>
+                            <span><i class="bi bi-calendar3 me-1"></i>{{ image.upload_date[:10] if image.upload_date else 'N/A' }}</span>
+                            <span class="mx-2">•</span>
+                            <span><i class="bi bi-eye me-1"></i>{{ image.views }}</span>
+                            <span class="mx-2">•</span>
+                            <span><i class="bi bi-heart{{ '-fill' if image.id in liked_images else '' }} me-1"></i>{{ image.likes or 0 }}</span>
+                        </div>
+                        
+                        {% if image.tags %}
+                        <div class="small mt-auto">
+                            {% for tag in image.tags.split(',')[:5] if image.tags %}
+                            <a href="{{ url_for('search', query=tag.strip()) }}" class="badge rounded-pill text-bg-light text-decoration-none me-1">
+                                {{ tag.strip() }}
+                            </a>
+                            {% endfor %}
+                            {% if image.tags and image.tags.split(',') | length > 5 %}
+                            <span class="badge rounded-pill text-bg-light">+{{ image.tags.split(',') | length - 5 }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mt-3 d-flex justify-content-end">
+                            <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                               class="btn btn-sm btn-light" 
+                               download="{{ image.title }}.{{ image.filename.split('.')[-1] }}">
+                                <i class="bi bi-download me-1"></i>Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delete Modal for list view images -->
+            {% if session.get('user_id') and session.get('user_id') == image.user_id %}
+            <div class="modal fade" id="deleteModalList{{ image.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Image</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete "<strong>{{ image.title }}</strong>"? This action cannot be undone.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="post" action="{{ url_for('delete_image', image_id=image.id) }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if images|length > 0 %}
+    <nav class="mt-5" aria-label="Gallery pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not prev_url %}disabled{% endif %}">
+                <a class="page-link" href="{{ prev_url or '#' }}" tabindex="-1" aria-disabled="{{ 'true' if not prev_url else 'false' }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            
+            {% for page_num in range(1, total_pages + 1) %}
+            <li class="page-item {% if page_num == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('gallery', page=page_num, sort=sort, query=query, category=category) }}">{{ page_num }}</a>
+            </li>
+            {% endfor %}
+            
+            <li class="page-item {% if not next_url %}disabled{% endif %}">
+                <a class="page-link" href="{{ next_url or '#' }}" aria-disabled="{{ 'true' if not next_url else 'false' }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- No Images Found -->
+    <div class="text-center py-5 my-5">
+        <div class="empty-state">
+            <i class="bi bi-images display-1 text-muted mb-3"></i>
+            <h3>No images found</h3>
+            <p class="text-muted mb-4">There are no images in the gallery yet.</p>
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                <i class="bi bi-cloud-upload me-2"></i>Upload Your First Image
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login to Upload
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle search form submission
+        const searchForm = document.getElementById('search-form');
+        const gallerySearch = document.getElementById('gallery-search');
+        
+        if (searchForm && gallerySearch) {
+            gallerySearch.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchForm.submit();
+                }
+            });
+        }
+        
+        // Image hover effect
+        const imageLinks = document.querySelectorAll('a img');
+        imageLinks.forEach(img => {
+            const overlay = img.nextElementSibling;
+            if (overlay && overlay.classList.contains('img-overlay')) {
+                img.parentElement.addEventListener('mouseenter', function() {
+                    overlay.style.opacity = '1';
+                });
+                
+                img.parentElement.addEventListener('mouseleave', function() {
+                    overlay.style.opacity = '0';
+                });
+            }
+        });
+        
+        // View toggle functionality
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        const listViewBtn = document.getElementById('list-view-btn');
+        const gridView = document.getElementById('grid-view');
+        const listView = document.getElementById('list-view');
+        
+        // Check localStorage for saved view preference
+        const savedView = localStorage.getItem('galleryView');
+        
+        // Apply saved view preference if it exists
+        if (savedView === 'list') {
+            gridViewBtn.classList.remove('active');
+            listViewBtn.classList.add('active');
+            gridView.classList.add('d-none');
+            listView.classList.remove('d-none');
+        }
+        
+        // Grid view button click handler
+        if (gridViewBtn) {
+            gridViewBtn.addEventListener('click', function() {
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+                gridView.classList.remove('d-none');
+                listView.classList.add('d-none');
+                localStorage.setItem('galleryView', 'grid');
+            });
+        }
+        
+        // List view button click handler
+        if (listViewBtn) {
+            listViewBtn.addEventListener('click', function() {
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+                listView.classList.remove('d-none');
+                gridView.classList.add('d-none');
+                localStorage.setItem('galleryView', 'list');
+            });
+        }
+    });
+</script>
+{% endblock %} 

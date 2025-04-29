@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Privacy Policy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+    .privacy-hero {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        padding: 4rem 0;
+        border-radius: 15px;
+        margin-bottom: 4rem;
+    }
+    
+    .privacy-section {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .privacy-section:last-child {
+        border-bottom: none;
+    }
+    
+    .privacy-section h2 {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .privacy-section h2:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background-color: #2c5282;
+        margin-top: 0.5rem;
+    }
+    
+    .privacy-section h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .toc-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .toc-container h3 {
+        margin-top: 0;
+    }
+    
+    .toc-container ul {
+        padding-left: 1.5rem;
+    }
+    
+    .toc-container li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .toc-link {
+        color: #2c5282;
+        text-decoration: none;
+    }
+    
+    .toc-link:hover {
+        text-decoration: underline;
+    }
+    
+    .last-updated {
+        font-style: italic;
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+    
+    /* Dark mode adjustments */
+    .dark-mode .privacy-hero {
+        background: linear-gradient(to right, #1a365d, #0d2438);
+    }
+    
+    .dark-mode .privacy-section {
+        border-bottom-color: #2c5282;
+    }
+    
+    .dark-mode .toc-container {
+        background-color: #1a365d;
+    }
+    
+    .dark-mode .toc-link {
+        color: #4a69dd;
+    }
+    
+    .dark-mode .last-updated {
+        color: #a0aec0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Privacy Hero -->
+    <div class="privacy-hero animate-on-scroll" data-aos="fade-up">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-5 fw-bold mb-3">Privacy Policy</h1>
+                    <p class="text-muted fs-5">How we collect, use, and protect your information</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <p class="last-updated animate-on-scroll" data-aos="fade-up">Last Updated: April 30, 2024</p>
+            
+            <!-- Table of Contents -->
+            <div class="toc-container animate-on-scroll" data-aos="fade-up">
+                <h3 class="h5 fw-bold mb-3">Contents</h3>
+                <ul class="mb-0">
+                    <li><a href="#introduction" class="toc-link">1. Introduction</a></li>
+                    <li><a href="#information-collection" class="toc-link">2. Information We Collect</a></li>
+                    <li><a href="#information-use" class="toc-link">3. How We Use Your Information</a></li>
+                    <li><a href="#information-sharing" class="toc-link">4. Information Sharing and Disclosure</a></li>
+                    <li><a href="#data-security" class="toc-link">5. Data Security</a></li>
+                    <li><a href="#user-rights" class="toc-link">6. Your Rights and Choices</a></li>
+                    <li><a href="#children" class="toc-link">7. Children's Privacy</a></li>
+                    <li><a href="#international" class="toc-link">8. International Data Transfers</a></li>
+                    <li><a href="#changes" class="toc-link">9. Changes to This Privacy Policy</a></li>
+                    <li><a href="#contact" class="toc-link">10. Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <!-- Introduction -->
+            <div id="introduction" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">1. Introduction</h2>
+                <p>Welcome to FotoShr ("we," "our," or "us"). At FotoShr, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website, mobile application, and services (collectively, the "Service").</p>
+                
+                <p>By accessing or using the Service, you consent to the collection, use, and storage of your information as described in this Privacy Policy. If you do not agree with our policies and practices, please do not use our Service.</p>
+                
+                <p>We encourage you to read this Privacy Policy carefully to understand our practices regarding your information and how we will treat it.</p>
+            </div>
+            
+            <!-- Information Collection -->
+            <div id="information-collection" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">2. Information We Collect</h2>
+                <p>We collect several types of information from and about users of our Service, including:</p>
+                
+                <h3 class="h5 fw-bold">Personal Information</h3>
+                <p>When you register for an account, we collect:</p>
+                <ul>
+                    <li>Username</li>
+                    <li>Email address</li>
+                    <li>Password (stored in encrypted form)</li>
+                </ul>
+                
+                <h3 class="h5 fw-bold">Profile Information</h3>
+                <p>You may choose to provide additional information for your profile, such as:</p>
+                <ul>
+                    <li>Profile picture</li>
+                    <li>Bio/description</li>
+                    <li>Social media links</li>
+                </ul>
+                
+                <h3 class="h5 fw-bold">Content</h3>
+                <p>We collect and store the photos, images, and other content that you upload, including:</p>
+                <ul>
+                    <li>Image files</li>
+                    <li>Titles, descriptions, and tags associated with your uploads</li>
+                    <li>Metadata embedded in your uploaded images (which may include location data)</li>
+                </ul>
+                
+                <h3 class="h5 fw-bold">Usage Information</h3>
+                <p>We automatically collect certain information about your use of the Service, including:</p>
+                <ul>
+                    <li>Log data (IP address, browser type, device information, pages visited)</li>
+                    <li>Interaction data (likes, comments, shares, views)</li>
+                    <li>Search queries</li>
+                </ul>
+                
+                <h3 class="h5 fw-bold">Cookies and Similar Technologies</h3>
+                <p>We use cookies and similar tracking technologies to track activity on our Service and hold certain information. Cookies are files with a small amount of data that may include an anonymous unique identifier. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.</p>
+            </div>
+            
+            <!-- Information Use -->
+            <div id="information-use" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">3. How We Use Your Information</h2>
+                <p>We use the information we collect about you for various purposes, including:</p>
+                
+                <ul>
+                    <li><strong>Providing and Improving the Service:</strong> To provide you with the Service, maintain your account, and enhance the user experience.</li>
+                    <li><strong>Communications:</strong> To communicate with you about your account, respond to inquiries, and send service-related announcements.</li>
+                    <li><strong>Personalization:</strong> To personalize your experience by showing content that may be of interest to you based on your preferences and usage patterns.</li>
+                    <li><strong>Analytics:</strong> To analyze usage patterns and trends to improve our website, products, and services.</li>
+                    <li><strong>Security:</strong> To detect, prevent, and address technical issues, fraud, or other illegal activities.</li>
+                    <li><strong>Legal Compliance:</strong> To comply with legal obligations, resolve disputes, and enforce our terms and policies.</li>
+                </ul>
+            </div>
+            
+            <!-- Information Sharing -->
+            <div id="information-sharing" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">4. Information Sharing and Disclosure</h2>
+                <p>We may share your information in the following situations:</p>
+                
+                <h3 class="h5 fw-bold">Public Content</h3>
+                <p>Information you post publicly on the Service, such as photos, profile information, and comments, is viewable by other users and the public. Please be careful when deciding what information you share publicly.</p>
+                
+                <h3 class="h5 fw-bold">Third-Party Service Providers</h3>
+                <p>We may share your information with third-party service providers who perform services on our behalf, such as hosting, data analysis, payment processing, customer service, and marketing assistance. These providers have access to your information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</p>
+                
+                <h3 class="h5 fw-bold">Business Transfers</h3>
+                <p>If we are involved in a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction. We will notify you via email and/or a prominent notice on our Service of any change in ownership or uses of your personal information.</p>
+                
+                <h3 class="h5 fw-bold">Legal Requirements</h3>
+                <p>We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or a government agency).</p>
+                
+                <h3 class="h5 fw-bold">With Your Consent</h3>
+                <p>We may share your information with third parties when we have your consent to do so.</p>
+            </div>
+            
+            <!-- Data Security -->
+            <div id="data-security" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">5. Data Security</h2>
+                <p>The security of your data is important to us, but remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.</p>
+                
+                <p>We implement a variety of security measures to maintain the safety of your personal information when you enter, submit, or access your personal information, including:</p>
+                <ul>
+                    <li>All sensitive information is transmitted via Secure Socket Layer (SSL) technology</li>
+                    <li>Passwords are stored using industry-standard encryption</li>
+                    <li>Regular security assessments and updates</li>
+                    <li>Limited access to personal information by employees on a need-to-know basis</li>
+                </ul>
+            </div>
+            
+            <!-- User Rights -->
+            <div id="user-rights" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">6. Your Rights and Choices</h2>
+                <p>You have certain rights regarding your personal information, including:</p>
+                
+                <h3 class="h5 fw-bold">Account Information</h3>
+                <p>You can review and update your account information by logging into your account settings. You can also delete your account at any time through the account settings page.</p>
+                
+                <h3 class="h5 fw-bold">Data Access and Portability</h3>
+                <p>You may request a copy of the personal information we have about you. We will provide this information in a structured, commonly used, and machine-readable format.</p>
+                
+                <h3 class="h5 fw-bold">Data Correction</h3>
+                <p>You may request that we correct inaccurate or incomplete information about you.</p>
+                
+                <h3 class="h5 fw-bold">Data Deletion</h3>
+                <p>You may request that we delete your personal information. Note that in some cases, we may retain certain information as required by law or for legitimate business purposes.</p>
+                
+                <h3 class="h5 fw-bold">Opt-Out of Communications</h3>
+                <p>You may opt out of receiving promotional emails from us by following the unsubscribe instructions included in each email. You may also adjust your communication preferences in your account settings.</p>
+                
+                <h3 class="h5 fw-bold">Cookies</h3>
+                <p>Most web browsers are set to accept cookies by default. You can usually choose to set your browser to remove or reject cookies. Please note that such actions could affect the availability and functionality of our Service.</p>
+                
+                <p>To exercise your rights, please contact us using the information provided in the "Contact Us" section below.</p>
+            </div>
+            
+            <!-- Children's Privacy -->
+            <div id="children" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">7. Children's Privacy</h2>
+                <p>Our Service is not directed to anyone under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us. If we become aware that we have collected personal information from children without verification of parental consent, we take steps to remove that information from our servers.</p>
+            </div>
+            
+            <!-- International Data Transfers -->
+            <div id="international" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">8. International Data Transfers</h2>
+                <p>Your information may be transferred to, and maintained on, computers located outside of your state, province, country, or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction.</p>
+                
+                <p>If you are located outside the United States and choose to provide information to us, please note that we transfer the data, including personal data, to the United States and process it there. Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.</p>
+            </div>
+            
+            <!-- Changes to Policy -->
+            <div id="changes" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">9. Changes to This Privacy Policy</h2>
+                <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date at the top of this Privacy Policy.</p>
+                
+                <p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
+            </div>
+            
+            <!-- Contact Us -->
+            <div id="contact" class="privacy-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">10. Contact Us</h2>
+                <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+                
+                <address class="mt-3">
+                    <strong>FotoShr, Inc.</strong><br>
+                    123 Photo Avenue<br>
+                    San Francisco, CA 94158<br>
+                    <br>
+                    <strong>Email:</strong> <a href="mailto:privacy@fotoshr.com">privacy@fotoshr.com</a>
+                </address>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // Smooth scroll for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                const navbarHeight = 100; // Adjust based on your navbar height
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

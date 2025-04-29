@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FotoShr{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+    <meta name="theme-color" content="#1a1a1a">
+    <style>
+        /* Navbar styling */
+        .navbar {
+            padding: 20px 0;
+            background-color: white !important;
+            position: fixed;
+            width: 100%;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-scrolled {
+            padding: 12px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #2c5282 !important;
+            font-size: 1.5rem;
+            margin-right: 50px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand-icon {
+            margin-right: 8px;
+            font-size: 1.6rem;
+        }
+        
+        .nav-link {
+            color: rgba(0, 0, 0, 0.7) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #2c5282 !important;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #2c5282;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 60%;
+        }
+        
+        .navbar .nav-item {
+            margin: 0 5px;
+        }
+        
+        .navbar-toggler {
+            border: none;
+            padding: 0;
+            color: #1a1a1a !important;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        
+        /* Search styling */
+        .header-search-container {
+            position: relative;
+            width: 240px;
+        }
+        
+        .header-search {
+            width: 100%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #1a1a1a;
+            border-radius: 50px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .header-search:focus {
+            background-color: rgba(0, 0, 0, 0.08);
+            box-shadow: none;
+            color: #1a1a1a;
+        }
+        
+        .header-search::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Theme toggle button */
+        #theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: rgba(0, 0, 0, 0.7);
+            transition: all 0.3s ease;
+        }
+        
+        #theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #000;
+        }
+        
+        /* User menu */
+        .avatar-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            background: linear-gradient(to right, #2c5282, #4a69dd);
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(44, 82, 130, 0.2);
+        }
+        
+        .avatar-circle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 82, 130, 0.3);
+        }
+        
+        /* Auth buttons */
+        .auth-buttons .btn-sign-in {
+            color: rgba(0, 0, 0, 0.7);
+            transition: all 0.2s ease;
+            padding: 0.5rem 1rem;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        .auth-buttons .btn-sign-in:hover {
+            color: #2c5282;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        .auth-buttons .btn-register {
+            background-color: #2c5282;
+            color: white;
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .auth-buttons .btn-register:hover {
+            background-color: #1a365d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Dropdown menu */
+        .dropdown-menu {
+            border: none;
+            border-radius: 12px;
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        
+        .dropdown-item {
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: rgba(0, 0, 0, 0.7);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-item i {
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #000;
+        }
+        
+        .dropdown-item:active {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #000;
+        }
+        
+        .dropdown-divider {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Dark mode body styling */
+        .dark-mode {
+            background-color: #0d2438;
+            color: #f1f1f1;
+        }
+        
+        .light-mode {
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+        
+        /* Dark mode navbar */
+        .dark-mode .navbar {
+            background-color: #0d2438 !important;
+        }
+        
+        .dark-mode .navbar-brand {
+            color: white !important;
+        }
+        
+        .dark-mode .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .dark-mode .nav-link:hover, .dark-mode .nav-link.active {
+            color: #4a69dd !important;
+        }
+        
+        .dark-mode .nav-link::after {
+            background-color: #4a69dd;
+        }
+        
+        .dark-mode .navbar-toggler {
+            color: white !important;
+        }
+        
+        .dark-mode .header-search {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dark-mode .header-search:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        
+        .dark-mode .header-search::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .dark-mode #theme-toggle {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .dark-mode #theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dark-mode .auth-buttons .btn-sign-in {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .dark-mode .auth-buttons .btn-sign-in:hover {
+            color: #4a69dd;
+        }
+        
+        .dark-mode .auth-buttons .btn-register {
+            background-color: #4a69dd;
+            color: white;
+        }
+        
+        .dark-mode .auth-buttons .btn-register:hover {
+            background-color: #3558d6;
+        }
+        
+        .dark-mode .dropdown-menu {
+            background-color: #0d2438;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .dark-mode .dropdown-item:hover {
+            background-color: #1a365d;
+            color: white;
+        }
+        
+        .dark-mode .dropdown-item:active {
+            background-color: #2c5282;
+            color: white;
+        }
+        
+        .dark-mode .dropdown-divider {
+            border-color: #1a365d;
+        }
+        
+        /* Footer styling */
+        footer {
+            background-color: #0d2438;
+            color: #e2e8f0;
+            padding: 3rem 0 1.5rem;
+            margin-top: 5rem;
+        }
+        
+        footer .footer-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        footer .text-muted {
+            color: #a0aec0 !important;
+        }
+        
+        footer .list-unstyled li {
+            margin-bottom: 0.5rem;
+        }
+        
+        footer .text-decoration-none {
+            transition: all 0.3s ease;
+        }
+        
+        footer .text-decoration-none:hover {
+            color: white !important;
+        }
+        
+        footer .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-right: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        footer .social-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <nav id="main-nav" class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-camera brand-icon"></i>FotoShr
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('search') %}active{% endif %}" href="{{ url_for('search') }}">Explore</a>
+                    </li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('upload') %}active{% endif %}" href="{{ url_for('upload') }}">Upload</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('about') %}active{% endif %}" href="{{ url_for('about') }}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('contact') %}active{% endif %}" href="{{ url_for('contact') }}">Contact</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <div class="header-search-container me-3 d-none d-md-block">
+                        <form action="{{ url_for('search') }}" method="get">
+                            <input class="form-control header-search" type="search" name="query" placeholder="Search" aria-label="Search">
+                        </form>
+                    </div>
+                    
+                    <button id="theme-toggle" class="btn me-3" type="button" aria-label="Toggle theme">
+                        <i class="bi bi-moon-stars"></i>
+                    </button>
+                    
+                    {% if session.get('user_id') %}
+                    <div class="dropdown">
+                        <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar-circle">
+                                {{ session.get('username')[0]|upper }}
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('gallery') }}"><i class="bi bi-collection"></i>My Gallery</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="bi bi-gear"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="auth-buttons">
+                        <a class="btn-sign-in" href="{{ url_for('login') }}">Sign In</a>
+                        <a class="btn btn-register" href="{{ url_for('register') }}">Register</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content-wrapper" style="padding-top: 90px;">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="container mt-4">
+            <div class="alert alert-info alert-dismissible fade show">
+                <ul class="list-unstyled mb-0">
+                    {% for message in messages %}
+                    <li><i class="bi bi-info-circle me-2"></i>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-logo">FotoShr</div>
+                    <p class="text-muted mb-3">A modern platform for photographers and visual artists to store, organize, and share their work.</p>
+                    <div class="social-links d-flex mb-4">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}" class="text-decoration-none text-muted">Home</a></li>
+                        <li><a href="{{ url_for('search') }}" class="text-decoration-none text-muted">Explore</a></li>
+                        <li><a href="{{ url_for('about') }}" class="text-decoration-none text-muted">About Us</a></li>
+                        <li><a href="{{ url_for('contact') }}" class="text-decoration-none text-muted">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('help_center') }}" class="text-decoration-none text-muted">Help Center</a></li>
+                        <li><a href="{{ url_for('privacy_policy') }}" class="text-decoration-none text-muted">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms_of_service') }}" class="text-decoration-none text-muted">Terms of Service</a></li>
+                        <li><a href="{{ url_for('faq') }}" class="text-decoration-none text-muted">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="mb-3">Newsletter</h6>
+                    <p class="text-muted mb-3">Stay updated with our latest features and releases.</p>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Your email" aria-label="Your email">
+                        <button class="btn btn-primary" type="button" style="background-color: #2c5282; border-color: #2c5282;">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4" style="background-color: rgba(255,255,255,0.1); opacity: 1;">
+            <div class="text-center text-muted">
+                <p class="mb-0">&copy; {{ 2024 }} FotoShr. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Navbar scroll behavior
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('main-nav');
+            if (window.scrollY > 30) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+        
+        // Check initial scroll position and set navbar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.getElementById('main-nav');
+            if (window.scrollY > 30) {
+                navbar.classList.add('navbar-scrolled');
+            }
+            
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            
+            themeToggle.addEventListener('click', function() {
+                if (body.classList.contains('dark-mode')) {
+                    body.classList.remove('dark-mode');
+                    body.classList.add('light-mode');
+                    themeToggle.innerHTML = '<i class="bi bi-moon-stars"></i>';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.classList.remove('light-mode');
+                    body.classList.add('dark-mode');
+                    themeToggle.innerHTML = '<i class="bi bi-sun"></i>';
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="bi bi-sun"></i>';
+            } else {
+                body.classList.add('light-mode');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

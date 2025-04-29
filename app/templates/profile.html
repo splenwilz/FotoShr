@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}'s Profile - FotoShr{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Header -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-avatar bg-primary text-white d-flex align-items-center justify-content-center rounded-circle me-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                            {{ user.username[0].upper() }}
+                        </div>
+                        <div>
+                            <h1 class="mb-1">{{ user.username }}</h1>
+                            <p class="text-muted mb-2">Member since {{ user.created_at.strftime('%B %Y') if user.created_at else 'N/A' }}</p>
+                            {% if session.get('user_id') == user.id %}
+                                <a href="#" class="btn btn-sm btn-outline-primary">Edit Profile</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="col-12 mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <h2 class="mb-0">{{ stats.total_images or 0 }}</h2>
+                            <p class="text-muted mb-0">Images</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <h2 class="mb-0">{{ stats.total_views or 0 }}</h2>
+                            <p class="text-muted mb-0">Total Views</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <h2 class="mb-0">{{ stats.total_likes or 0 }}</h2>
+                            <p class="text-muted mb-0">Total Likes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Image Gallery -->
+        <div class="col-12">
+            <h2 class="mb-4">Uploaded Images</h2>
+            {% if images %}
+                <div class="row g-4">
+                    {% for image in images %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card h-100 border-0 shadow-sm image-card">
+                            <a href="{{ url_for('image', image_id=image.id) }}" class="image-link">
+                                <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                                     alt="{{ image.title }}" 
+                                     class="card-img-top image-thumbnail">
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title text-truncate">{{ image.title }}</h5>
+                                <p class="card-text text-muted small text-truncate">{{ image.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="small text-muted">
+                                        <span><i class="bi bi-eye"></i> {{ image.views or 0 }}</span>
+                                        <span class="ms-2"><i class="bi bi-heart"></i> {{ image.likes or 0 }}</span>
+                                    </div>
+                                    <small class="text-muted">{{ image.created_at.strftime('%b %d, %Y') if image.created_at else 'N/A' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% if session.get('user_id') == user.id %}
+                        You haven't uploaded any images yet. <a href="{{ url_for('upload') }}" class="alert-link">Upload your first image!</a>
+                    {% else %}
+                        {{ user.username }} hasn't uploaded any images yet.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .image-card {
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .image-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .image-thumbnail {
+        height: 220px;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+    
+    .image-link {
+        overflow: hidden;
+        display: block;
+    }
+    
+    .image-card:hover .image-thumbnail {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %} 

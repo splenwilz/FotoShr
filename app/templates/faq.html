@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Frequently Asked Questions{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+    .faq-hero {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        padding: 4rem 0;
+        border-radius: 15px;
+        margin-bottom: 4rem;
+    }
+    
+    .accordion-item {
+        border: none;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .accordion-button {
+        padding: 1.2rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        background-color: white;
+        color: #1a1a1a;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #2c5282;
+        color: white;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: transparent;
+    }
+    
+    .accordion-body {
+        padding: 1.5rem;
+        background-color: white;
+    }
+    
+    .faq-category {
+        margin-bottom: 3rem;
+    }
+    
+    .faq-category-title {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .faq-category-title:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background-color: #2c5282;
+        margin-top: 0.5rem;
+    }
+    
+    /* Dark mode adjustments */
+    .dark-mode .faq-hero {
+        background: linear-gradient(to right, #1a365d, #0d2438);
+    }
+    
+    .dark-mode .accordion-item {
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    
+    .dark-mode .accordion-button {
+        background-color: #1a365d;
+        color: #f1f1f1;
+    }
+    
+    .dark-mode .accordion-button:not(.collapsed) {
+        background-color: #2c5282;
+    }
+    
+    .dark-mode .accordion-body {
+        background-color: #1a365d;
+        color: #f1f1f1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- FAQ Hero -->
+    <div class="faq-hero animate-on-scroll" data-aos="fade-up">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-5 fw-bold mb-3">Frequently Asked Questions</h1>
+                    <p class="text-muted fs-5">Find answers to the most common questions about FotoShr</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ Content -->
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="sticky-top pt-4" style="top: 100px;">
+                <h4 class="h5 fw-bold mb-3">Categories</h4>
+                <div class="list-group">
+                    <a href="#general" class="list-group-item list-group-item-action border-0 rounded mb-2">General Questions</a>
+                    <a href="#account" class="list-group-item list-group-item-action border-0 rounded mb-2">Account & Profile</a>
+                    <a href="#upload" class="list-group-item list-group-item-action border-0 rounded mb-2">Uploading & Sharing</a>
+                    <a href="#privacy" class="list-group-item list-group-item-action border-0 rounded mb-2">Privacy & Security</a>
+                    <a href="#technical" class="list-group-item list-group-item-action border-0 rounded">Technical Support</a>
+                </div>
+                
+                <div class="mt-4 p-4 bg-light rounded text-center">
+                    <h5 class="h6 fw-bold mb-3">Can't find your answer?</h5>
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary btn-sm">Contact Support</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- General Questions -->
+            <div id="general" class="faq-category animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold faq-category-title">General Questions</h2>
+                
+                <div class="accordion" id="accordionGeneral">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#general1">
+                                What is FotoShr?
+                            </button>
+                        </h3>
+                        <div id="general1" class="accordion-collapse collapse show" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <p>FotoShr is a modern platform designed for photographers and visual artists to store, organize, and share their work. It provides a clean, professional way to showcase your photography portfolio, whether you're a professional or hobbyist.</p>
+                                <p>Our platform focuses on high-quality image display, comprehensive organization tools, and easy sharing capabilities, all while maintaining the integrity and security of your creative work.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general2">
+                                Is FotoShr free to use?
+                            </button>
+                        </h3>
+                        <div id="general2" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <p>Yes, FotoShr offers a free basic plan that includes essential features for uploading, organizing, and sharing your photos. The free plan includes:</p>
+                                <ul>
+                                    <li>Up to 500 photos storage</li>
+                                    <li>Basic organization tools</li>
+                                    <li>Standard sharing options</li>
+                                    <li>Community features</li>
+                                </ul>
+                                <p>Premium plans with additional features like increased storage, advanced organization tools, and enhanced privacy controls are being developed and will be available soon.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general3">
+                                How is FotoShr different from other photo sharing platforms?
+                            </button>
+                        </h3>
+                        <div id="general3" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <p>FotoShr differentiates itself through its focus on photographers' specific needs:</p>
+                                <ul>
+                                    <li><strong>Image Quality:</strong> We preserve the quality of your original uploads, allowing viewers to appreciate the details in your work.</li>
+                                    <li><strong>Clean Display:</strong> Our minimalist interface puts your photography front and center, without distracting elements.</li>
+                                    <li><strong>Photographer-First Approach:</strong> Our platform is built specifically for photographers, with features that cater to organizing and showcasing visual work professionally.</li>
+                                    <li><strong>Privacy Controls:</strong> We give you complete control over who can view and download your work.</li>
+                                </ul>
+                                <p>Unlike social media platforms, FotoShr is designed specifically for photographers to build and maintain a professional portfolio.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account & Profile -->
+            <div id="account" class="faq-category animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold faq-category-title">Account & Profile</h2>
+                
+                <div class="accordion" id="accordionAccount">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#account1">
+                                How do I create an account?
+                            </button>
+                        </h3>
+                        <div id="account1" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                            <div class="accordion-body">
+                                <p>Creating a FotoShr account is simple:</p>
+                                <ol>
+                                    <li>Click on the "Register" button in the top navigation bar</li>
+                                    <li>Enter your desired username, email address, and password</li>
+                                    <li>Agree to the Terms of Service and Privacy Policy</li>
+                                    <li>Click "Create Account"</li>
+                                </ol>
+                                <p>Once registered, you can immediately start uploading and organizing your photos. We recommend completing your profile with a brief bio to help others discover your work.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#account2">
+                                How do I reset my password?
+                            </button>
+                        </h3>
+                        <div id="account2" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                            <div class="accordion-body">
+                                <p>If you've forgotten your password, follow these steps:</p>
+                                <ol>
+                                    <li>Go to the login page and click "Forgot password?"</li>
+                                    <li>Enter the email address associated with your account</li>
+                                    <li>Check your email for a password reset link</li>
+                                    <li>Click the link and follow the instructions to create a new password</li>
+                                </ol>
+                                <p>If you're already logged in and want to change your password for security reasons, go to your Account Settings page, select the Security tab, and follow the prompts to update your password.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#account3">
+                                Can I change my username?
+                            </button>
+                        </h3>
+                        <div id="account3" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                            <div class="accordion-body">
+                                <p>Currently, usernames cannot be changed after account creation. This is to ensure consistency and prevent confusion within the community.</p>
+                                <p>We recommend choosing a username carefully when you register. If you absolutely need to change your username, please contact our support team, and we'll evaluate your request on a case-by-case basis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Uploading & Sharing -->
+            <div id="upload" class="faq-category animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold faq-category-title">Uploading & Sharing</h2>
+                
+                <div class="accordion" id="accordionUpload">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#upload1">
+                                What file formats are supported?
+                            </button>
+                        </h3>
+                        <div id="upload1" class="accordion-collapse collapse" data-bs-parent="#accordionUpload">
+                            <div class="accordion-body">
+                                <p>FotoShr supports the following image formats:</p>
+                                <ul>
+                                    <li><strong>JPEG/JPG</strong> - Recommended for photographs</li>
+                                    <li><strong>PNG</strong> - Best for images that require transparency</li>
+                                    <li><strong>GIF</strong> - Supported for simple animations</li>
+                                    <li><strong>WebP</strong> - Modern format with good compression</li>
+                                </ul>
+                                <p>The maximum file size per image is 10MB for standard accounts. We recommend using JPEG format with high quality settings for photographic work to balance quality and loading performance.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#upload2">
+                                How do I organize my photos?
+                            </button>
+                        </h3>
+                        <div id="upload2" class="accordion-collapse collapse" data-bs-parent="#accordionUpload">
+                            <div class="accordion-body">
+                                <p>FotoShr provides several ways to organize your uploads:</p>
+                                <ul>
+                                    <li><strong>Tags:</strong> Add descriptive tags to make your images searchable</li>
+                                    <li><strong>Titles & Descriptions:</strong> Add detailed information to each photo</li>
+                                    <li><strong>Sorting:</strong> Arrange your gallery by upload date, views, or likes</li>
+                                </ul>
+                                <p>You can also organize your photos by editing the metadata after uploading. We recommend using consistent tagging practices to make your photos easier to find and categorize.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#upload3">
+                                How do I share my photos with others?
+                            </button>
+                        </h3>
+                        <div id="upload3" class="accordion-collapse collapse" data-bs-parent="#accordionUpload">
+                            <div class="accordion-body">
+                                <p>You can share your photos in several ways:</p>
+                                <ul>
+                                    <li><strong>Direct Links:</strong> Every photo has a unique URL that you can copy and share</li>
+                                    <li><strong>Social Media:</strong> Use the share buttons to post directly to platforms like Facebook, Twitter, and Pinterest</li>
+                                    <li><strong>Embed:</strong> Add your photos to blogs or websites using the embed code</li>
+                                </ul>
+                                <p>Additionally, your public gallery is accessible to anyone who visits your profile. If you prefer to keep certain photos private, you can adjust the privacy settings for individual images in your gallery.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Privacy & Security -->
+            <div id="privacy" class="faq-category animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold faq-category-title">Privacy & Security</h2>
+                
+                <div class="accordion" id="accordionPrivacy">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#privacy1">
+                                Who can see my uploaded photos?
+                            </button>
+                        </h3>
+                        <div id="privacy1" class="accordion-collapse collapse" data-bs-parent="#accordionPrivacy">
+                            <div class="accordion-body">
+                                <p>By default, all photos you upload to FotoShr are public and can be viewed by anyone visiting the platform. However, you have control over your content's visibility:</p>
+                                <ul>
+                                    <li>You can set individual photos to private, making them visible only to you</li>
+                                    <li>You retain full copyright of your images - we never claim ownership of your work</li>
+                                    <li>FotoShr does not sell or distribute your photos to third parties</li>
+                                </ul>
+                                <p>You can manage the privacy settings for your photos from your gallery or when editing individual images.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#privacy2">
+                                How does FotoShr protect my personal information?
+                            </button>
+                        </h3>
+                        <div id="privacy2" class="accordion-collapse collapse" data-bs-parent="#accordionPrivacy">
+                            <div class="accordion-body">
+                                <p>We take data protection seriously and employ multiple security measures:</p>
+                                <ul>
+                                    <li>All passwords are stored using industry-standard encryption</li>
+                                    <li>All data transfers are secured with SSL/TLS encryption</li>
+                                    <li>We only collect information necessary for the functioning of the platform</li>
+                                    <li>We do not sell your personal information to third parties</li>
+                                </ul>
+                                <p>For more details on how we handle your data, please review our <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#privacy3">
+                                Can I delete my account and all my data?
+                            </button>
+                        </h3>
+                        <div id="privacy3" class="accordion-collapse collapse" data-bs-parent="#accordionPrivacy">
+                            <div class="accordion-body">
+                                <p>Yes, you have complete control over your account and data:</p>
+                                <ul>
+                                    <li>You can delete individual photos at any time from your gallery</li>
+                                    <li>To delete your entire account, go to Account Settings > Security > Delete Account</li>
+                                    <li>Account deletion will permanently remove all your photos, profile information, and activity history</li>
+                                </ul>
+                                <p>Before deleting your account, we recommend downloading any photos you want to keep, as this action cannot be undone. After account deletion, we may retain certain data for a short period as required by law, but it will be completely removed from our systems after that period.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technical Support -->
+            <div id="technical" class="faq-category animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold faq-category-title">Technical Support</h2>
+                
+                <div class="accordion" id="accordionTechnical">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#technical1">
+                                My images aren't uploading properly. What should I do?
+                            </button>
+                        </h3>
+                        <div id="technical1" class="accordion-collapse collapse" data-bs-parent="#accordionTechnical">
+                            <div class="accordion-body">
+                                <p>If you're experiencing issues with uploads, try these troubleshooting steps:</p>
+                                <ol>
+                                    <li>Check that your image meets our format requirements (JPEG, PNG, GIF, WebP)</li>
+                                    <li>Ensure the file size is under 10MB</li>
+                                    <li>Try using a different browser or clearing your browser cache</li>
+                                    <li>Check your internet connection stability</li>
+                                    <li>Disable any ad-blockers or browser extensions that might interfere with uploads</li>
+                                </ol>
+                                <p>If problems persist, please contact our support team with details about the issue, including the file format, size, and the browser you're using.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#technical2">
+                                The website is running slowly. How can I improve performance?
+                            </button>
+                        </h3>
+                        <div id="technical2" class="accordion-collapse collapse" data-bs-parent="#accordionTechnical">
+                            <div class="accordion-body">
+                                <p>If you're experiencing slow performance on FotoShr, try these steps:</p>
+                                <ol>
+                                    <li>Clear your browser cache and cookies</li>
+                                    <li>Use a modern browser (Chrome, Firefox, Safari, or Edge)</li>
+                                    <li>Disable browser extensions that might affect website performance</li>
+                                    <li>Check your internet connection speed</li>
+                                    <li>Try using our mobile app for a more optimized experience on smartphones and tablets</li>
+                                </ol>
+                                <p>FotoShr is designed to be responsive and fast, but loading many high-resolution images can be resource-intensive. If performance issues persist across different devices and networks, please report the issue to our support team.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#technical3">
+                                Is FotoShr compatible with all devices and browsers?
+                            </button>
+                        </h3>
+                        <div id="technical3" class="accordion-collapse collapse" data-bs-parent="#accordionTechnical">
+                            <div class="accordion-body">
+                                <p>FotoShr is designed to work on most modern devices and browsers:</p>
+                                <ul>
+                                    <li><strong>Supported Browsers:</strong> Chrome, Firefox, Safari, Edge (latest versions)</li>
+                                    <li><strong>Mobile Compatibility:</strong> Responsive design works on smartphones and tablets</li>
+                                    <li><strong>Operating Systems:</strong> Works on Windows, macOS, iOS, and Android</li>
+                                </ul>
+                                <p>For the best experience, we recommend using the latest version of Chrome or Firefox on desktop devices, and the native browser on mobile devices. Internet Explorer is not fully supported due to its limitations with modern web technologies.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Support -->
+            <div class="text-center py-5 animate-on-scroll" data-aos="fade-up">
+                <h3 class="h4 fw-bold mb-3">Still have questions?</h3>
+                <p class="text-muted mb-4">Our support team is ready to help you with any questions or issues you may have.</p>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                    <i class="bi bi-chat-dots me-2"></i>Contact Support
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // Smooth scroll for category links
+        document.querySelectorAll('.list-group-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                const navbarHeight = 100; // Adjust based on your navbar height
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

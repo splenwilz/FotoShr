@@ -1,0 +1,513 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - {{ image.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb" class="animate-on-scroll" data-aos="fade-right" data-aos-duration="600">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('search') }}" class="text-decoration-none">Explore</a></li>
+            <li class="breadcrumb-item active text-truncate" aria-current="page" style="max-width: 300px;">{{ image.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Image Column -->
+        <div class="col-lg-8 animate-on-scroll" data-aos="fade-up" data-aos-duration="800">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="position-relative">
+                    <!-- Image -->
+                    <div class="image-container position-relative" style="background-color: #f8f9fa;">
+                        <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                             class="img-fluid w-100" 
+                             alt="{{ image.title }}" 
+                             style="max-height: 70vh; object-fit: contain;">
+                        
+                        <!-- Image controls overlay -->
+                        <div class="image-controls position-absolute top-0 end-0 m-3 d-flex gap-2">
+                            <button type="button" class="btn btn-light btn-sm rounded-circle shadow-sm" id="fullscreen-btn" 
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Fullscreen">
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm" type="button" 
+                                        id="shareDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Share">
+                                    <i class="bi bi-share"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="shareDropdown">
+                                    <li><h6 class="dropdown-header">Share this image</h6></li>
+                                    <li><a class="dropdown-item" href="#" id="share-facebook"><i class="bi bi-facebook me-2 text-primary"></i>Facebook</a></li>
+                                    <li><a class="dropdown-item" href="#" id="share-twitter"><i class="bi bi-twitter me-2 text-info"></i>Twitter</a></li>
+                                    <li><a class="dropdown-item" href="#" id="share-pinterest"><i class="bi bi-pinterest me-2 text-danger"></i>Pinterest</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="copy-link"><i class="bi bi-link-45deg me-2"></i>Copy Link</a></li>
+                                </ul>
+                            </div>
+                            {% if session.get('user_id') and session.get('user_id') == image.user_id %}
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm" type="button" 
+                                        id="imageActions" data-bs-toggle="dropdown" aria-expanded="false"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="More options">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="imageActions">
+                                    <li><a class="dropdown-item" href="{{ url_for('edit_image', image_id=image.id) }}">
+                                        <i class="bi bi-pencil me-2 text-primary"></i>Edit Image
+                                    </a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteImageModal">
+                                        <i class="bi bi-trash me-2"></i>Delete Image
+                                    </a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Image metadata bar -->
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 bg-light border-top">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3"><i class="bi bi-eye me-1"></i>{{ image.views }}</span>
+                            <div>
+                                {% if not session.get('user_id') %}
+                                    <span class="text-muted me-1">
+                                        <i class="bi bi-heart me-1"></i>{{ likes_count }}
+                                    </span>
+                                {% elif has_liked %}
+                                    <form method="post" action="{{ url_for('unlike_image', image_id=image.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm text-danger p-0 border-0">
+                                            <i class="bi bi-heart-fill me-1"></i>{{ likes_count }}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ url_for('like_image', image_id=image.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm text-muted p-0 border-0 hover-red">
+                                            <i class="bi bi-heart me-1"></i>{{ likes_count }}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <small class="text-muted">Uploaded {{ image.upload_date }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Column -->
+        <div class="col-lg-4 animate-on-scroll" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle border me-2 d-flex align-items-center justify-content-center bg-primary" 
+                             style="width: 40px; height: 40px; color: white; font-weight: bold;">
+                            {{ image.user.username[0]|upper if image.user and image.user.username else 'U' }}
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">{{ image.user.username if image.user and image.user.username else 'Unknown User' }}</h6>
+                            <small class="text-muted">@{{ image.user.username.lower() if image.user and image.user.username else 'unknown' }}</small>
+                        </div>
+                    </div>
+                    
+                    <h3 class="fs-4 fw-bold mb-2">{{ image.title }}</h3>
+                    
+                    {% if image.description %}
+                    <div class="mb-4">
+                        <p class="text-muted">{{ image.description }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if image.tags %}
+                    <div class="mb-4">
+                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">Tags</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for tag in image.tags.split(',') %}
+                            <a href="{{ url_for('search', query=tag.strip()) }}" 
+                               class="badge rounded-pill text-bg-light text-decoration-none">
+                                {{ tag.strip() }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">Image Details</h6>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
+                                <span class="text-muted">Format</span>
+                                <span class="fw-medium">{{ image.filename.split('.')[-1]|upper }}</span>
+                            </li>
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
+                                <span class="text-muted">Upload Date</span>
+                                <span class="fw-medium">{{ image.upload_date }}</span>
+                            </li>
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
+                                <span class="text-muted">Views</span>
+                                <span class="fw-medium">{{ image.views }}</span>
+                            </li>
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
+                                <span class="text-muted">Likes</span>
+                                <span class="fw-medium">{{ likes_count }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                           class="btn btn-primary rounded-pill" 
+                           download="{{ image.title }}.{{ image.filename.split('.')[-1] }}">
+                            <i class="bi bi-download me-2"></i>Download Image
+                        </a>
+                        
+                        <button class="btn btn-outline-secondary rounded-pill" type="button" id="copy-link-btn">
+                            <i class="bi bi-link-45deg me-2"></i>Copy Image Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fullscreen Modal -->
+<div class="modal fade" id="fullscreenModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">{{ image.title }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex align-items-center justify-content-center" id="fullscreen-modal-body">
+                <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                     class="img-fluid" 
+                     alt="{{ image.title }}" 
+                     style="max-height: 90vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+{% if session.get('user_id') and session.get('user_id') == image.user_id %}
+<div class="modal fade" id="deleteImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<strong>{{ image.title }}</strong>"? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{{ url_for('delete_image', image_id=image.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded and parsed');
+        
+        // Initialize animations only if AOS exists
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            console.log('AOS initialized');
+        } else {
+            console.warn('AOS library not found, skipping animation initialization');
+            // Remove AOS attributes from elements to prevent errors
+            document.querySelectorAll('[data-aos]').forEach(element => {
+                element.removeAttribute('data-aos');
+                element.removeAttribute('data-aos-duration');
+                element.removeAttribute('data-aos-delay');
+            });
+        }
+        
+        // Initialize tooltips
+        if (typeof bootstrap !== 'undefined' && typeof bootstrap.Tooltip !== 'undefined') {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            console.log('Tooltips initialized');
+        } else {
+            console.warn('Bootstrap Tooltip not found, skipping tooltip initialization');
+        }
+        
+        // Fullscreen functionality
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        console.log('Fullscreen button:', fullscreenBtn);
+        
+        // Check if modal element exists
+        const modalElement = document.getElementById('fullscreenModal');
+        console.log('Modal element:', modalElement);
+        
+        // Check if Bootstrap is available
+        console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+        console.log('Bootstrap Modal available:', typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined');
+        
+        let fullscreenModal;
+        try {
+            if (modalElement && typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined') {
+                fullscreenModal = new bootstrap.Modal(modalElement);
+                console.log('Fullscreen modal initialized successfully');
+            } else {
+                console.error('Could not initialize modal: Missing element or Bootstrap');
+            }
+        } catch (err) {
+            console.error('Error initializing modal:', err);
+        }
+        
+        if (fullscreenBtn) {
+            console.log('Adding click event listener to fullscreen button');
+            fullscreenBtn.addEventListener('click', function(e) {
+                console.log('Fullscreen button clicked at', new Date().toISOString());
+                e.preventDefault();
+                
+                if (fullscreenModal) {
+                    // Try using Bootstrap Modal
+                    try {
+                        console.log('Attempting to show modal through Bootstrap');
+                        fullscreenModal.show();
+                        console.log('Modal show method called');
+                    } catch (error) {
+                        console.error('Error showing fullscreen modal with Bootstrap:', error);
+                        
+                        // Fallback: manually add the classes and show the modal
+                        try {
+                            console.log('Falling back to manual modal display');
+                            modalElement.classList.add('show');
+                            modalElement.style.display = 'block';
+                            document.body.classList.add('modal-open');
+                            
+                            // Create backdrop if it doesn't exist
+                            let backdrop = document.querySelector('.modal-backdrop');
+                            if (!backdrop) {
+                                backdrop = document.createElement('div');
+                                backdrop.className = 'modal-backdrop fade show';
+                                document.body.appendChild(backdrop);
+                            }
+                            console.log('Manual modal display completed');
+                        } catch (fallbackError) {
+                            console.error('Error in fallback modal display:', fallbackError);
+                        }
+                    }
+                } else if (modalElement) {
+                    // Direct DOM manipulation fallback
+                    console.log('No Bootstrap Modal object, using direct DOM manipulation');
+                    modalElement.classList.add('show');
+                    modalElement.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                    
+                    // Create backdrop
+                    let backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                } else {
+                    console.error('Neither Modal object nor modal element available');
+                }
+            });
+            
+            // Add close button functionality manually
+            if (modalElement) {
+                const closeButtons = modalElement.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]');
+                closeButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        console.log('Modal close button clicked');
+                        
+                        // Try Bootstrap way first
+                        if (fullscreenModal) {
+                            try {
+                                fullscreenModal.hide();
+                            } catch (error) {
+                                // Fallback
+                                modalElement.classList.remove('show');
+                                modalElement.style.display = 'none';
+                                document.body.classList.remove('modal-open');
+                                
+                                // Remove backdrop
+                                const backdrop = document.querySelector('.modal-backdrop');
+                                if (backdrop) {
+                                    backdrop.remove();
+                                }
+                            }
+                        } else {
+                            // Direct DOM manipulation
+                            modalElement.classList.remove('show');
+                            modalElement.style.display = 'none';
+                            document.body.classList.remove('modal-open');
+                            
+                            // Remove backdrop
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) {
+                                backdrop.remove();
+                            }
+                        }
+                    });
+                });
+            }
+        } else {
+            console.error('Fullscreen button not found in the DOM');
+        }
+        
+        // Social sharing functionality
+        const shareButtons = {
+            facebook: document.getElementById('share-facebook'),
+            twitter: document.getElementById('share-twitter'),
+            pinterest: document.getElementById('share-pinterest')
+        };
+        
+        const pageUrl = window.location.href;
+        const imageUrl = document.querySelector('.image-container img').src;
+        const imageTitle = "{{ image.title }}";
+        
+        if (shareButtons.facebook) {
+            shareButtons.facebook.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`, 
+                            'facebook-share', 'width=580,height=296');
+            });
+        }
+        
+        if (shareButtons.twitter) {
+            shareButtons.twitter.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(imageTitle)}&url=${encodeURIComponent(pageUrl)}`, 
+                            'twitter-share', 'width=550,height=420');
+            });
+        }
+        
+        if (shareButtons.pinterest) {
+            shareButtons.pinterest.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(pageUrl)}&media=${encodeURIComponent(imageUrl)}&description=${encodeURIComponent(imageTitle)}`, 
+                            'pinterest-share', 'width=750,height=550');
+            });
+        }
+        
+        // Copy link functionality
+        const copyLinkBtn = document.getElementById('copy-link-btn');
+        const copyLink = document.getElementById('copy-link');
+        
+        function copyToClipboard(text, button, originalText) {
+            navigator.clipboard.writeText(text).then(function() {
+                button.innerHTML = '<i class="bi bi-check2 me-2"></i>Copied!';
+                setTimeout(function() {
+                    button.innerHTML = originalText;
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+        
+        if (copyLinkBtn) {
+            copyLinkBtn.addEventListener('click', function() {
+                const originalText = copyLinkBtn.innerHTML;
+                copyToClipboard(pageUrl, copyLinkBtn, originalText);
+            });
+        }
+        
+        if (copyLink) {
+            copyLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                const originalText = copyLink.innerHTML;
+                copyToClipboard(pageUrl, copyLink, originalText);
+            });
+        }
+        
+        // Add hover effect for like button
+        document.querySelectorAll('.hover-red').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.classList.remove('text-muted');
+                this.classList.add('text-danger');
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.classList.remove('text-danger');
+                this.classList.add('text-muted');
+            });
+        });
+
+        // Add event listener to close modal when clicking outside the image
+        if (modalElement) {
+            const modalBody = document.getElementById('fullscreen-modal-body');
+            if (modalBody) {
+                modalBody.addEventListener('click', function(e) {
+                    // If the click is directly on the modal body (not on the image)
+                    if (e.target === modalBody) {
+                        console.log('Clicked outside the image, closing modal');
+                        
+                        // Try using Bootstrap Modal if available
+                        if (fullscreenModal) {
+                            try {
+                                fullscreenModal.hide();
+                            } catch (error) {
+                                // Manual fallback
+                                modalElement.classList.remove('show');
+                                modalElement.style.display = 'none';
+                                document.body.classList.remove('modal-open');
+                                
+                                const backdrop = document.querySelector('.modal-backdrop');
+                                if (backdrop) backdrop.remove();
+                            }
+                        } else {
+                            // Direct DOM manipulation
+                            modalElement.classList.remove('show');
+                            modalElement.style.display = 'none';
+                            document.body.classList.remove('modal-open');
+                            
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) backdrop.remove();
+                        }
+                    }
+                });
+            }
+        }
+    });
+    
+    // Add CSS for image detail page
+    if (!document.getElementById('image-detail-styles')) {
+        const style = document.createElement('style');
+        style.id = 'image-detail-styles';
+        style.textContent = `
+            .image-container {
+                min-height: 300px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .border-dashed {
+                border-bottom-style: dashed !important;
+            }
+            
+            .btn-light {
+                background-color: rgba(255, 255, 255, 0.9);
+            }
+            
+            .btn-light:hover {
+                background-color: #fff;
+            }
+            
+            .hover-red:hover {
+                color: var(--bs-danger) !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+</script>
+{% endblock %}

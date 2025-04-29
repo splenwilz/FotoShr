@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Contact Us{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+  .contact-hero {
+    padding: 6rem 0 4rem;
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  }
+  
+  .contact-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2c5282;
+  }
+  
+  .contact-subtitle {
+    font-size: 1.2rem;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+  }
+  
+  .contact-section {
+    padding: 5rem 0;
+  }
+  
+  .contact-card {
+    background-color: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    height: 100%;
+  }
+  
+  .contact-form {
+    padding: 2.5rem;
+  }
+  
+  .contact-info {
+    padding: 2.5rem;
+    background-color: #2c5282;
+    color: white;
+    height: 100%;
+  }
+  
+  .contact-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .contact-info-item {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .contact-info-icon {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .contact-info-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+  
+  .contact-info-content p, .contact-info-content a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+  }
+  
+  .contact-info-content a:hover {
+    color: white;
+    text-decoration: underline;
+  }
+  
+  .social-links {
+    display: flex;
+    margin-top: 2rem;
+  }
+  
+  .social-link {
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .social-link:hover {
+    background-color: white;
+    color: #2c5282;
+    transform: translateY(-3px);
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .form-control {
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    width: 100%;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    border-color: #2c5282;
+    box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+    outline: none;
+  }
+  
+  textarea.form-control {
+    min-height: 150px;
+    resize: vertical;
+  }
+  
+  .btn-primary {
+    background-color: #2c5282;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1a365d;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .map-section {
+    padding: 5rem 0;
+  }
+  
+  .map-wrapper {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    height: 450px;
+  }
+  
+  .map-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  
+  .faq-section {
+    padding: 5rem 0;
+    background-color: #f8f9fa;
+  }
+  
+  .faq-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  
+  .accordion-item {
+    border: none;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  }
+  
+  .accordion-button {
+    padding: 1.2rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    background-color: white;
+    color: #1a1a1a;
+  }
+  
+  .accordion-button:not(.collapsed) {
+    background-color: #2c5282;
+    color: white;
+  }
+  
+  .accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+  }
+  
+  .accordion-body {
+    padding: 1.5rem;
+    background-color: white;
+  }
+  
+  /* Dark mode adjustments */
+  .dark-mode .contact-hero {
+    background: linear-gradient(to right, #1a365d, #0d2438);
+  }
+  
+  .dark-mode .contact-title {
+    color: #f1f1f1;
+  }
+  
+  .dark-mode .contact-subtitle {
+    color: #a0aec0;
+  }
+  
+  .dark-mode .contact-card {
+    background-color: #1a365d;
+  }
+  
+  .dark-mode .contact-info {
+    background-color: #0d2438;
+  }
+  
+  .dark-mode .form-control {
+    background-color: #2c5282;
+    border-color: #0d2438;
+    color: white;
+  }
+  
+  .dark-mode .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .dark-mode .form-label {
+    color: #f1f1f1;
+  }
+  
+  .dark-mode .btn-primary {
+    background-color: #4a69dd;
+  }
+  
+  .dark-mode .btn-primary:hover {
+    background-color: #5a79ed;
+  }
+  
+  .dark-mode .faq-section {
+    background-color: #0d2438;
+  }
+  
+  .dark-mode .accordion-button {
+    background-color: #1a365d;
+    color: #f1f1f1;
+  }
+  
+  .dark-mode .accordion-button:not(.collapsed) {
+    background-color: #2c5282;
+  }
+  
+  .dark-mode .accordion-body {
+    background-color: #1a365d;
+    color: #f1f1f1;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5 animate-on-scroll" data-aos="fade-up">
+                <i class="bi bi-chat-dots-fill text-primary" style="font-size: 3rem;"></i>
+                <h1 class="display-5 fw-bold mt-3">Contact Us</h1>
+                <p class="text-muted fs-5">Have questions or feedback? We'd love to hear from you!</p>
+            </div>
+            
+            <div class="row g-5 mb-5">
+                <div class="col-md-5 animate-on-scroll" data-aos="fade-up">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4 p-lg-5">
+                            <h2 class="h3 fw-bold mb-4">Get In Touch</h2>
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; min-width: 50px;">
+                                        <i class="bi bi-envelope text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="h6 fw-bold mb-1">Email Us</h3>
+                                        <p class="text-muted mb-0">support@fotoshr.com</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; min-width: 50px;">
+                                        <i class="bi bi-geo-alt text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="h6 fw-bold mb-1">Office</h3>
+                                        <p class="text-muted mb-0">123 Photo Avenue<br>San Francisco, CA 94158</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; min-width: 50px;">
+                                        <i class="bi bi-clock text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="h6 fw-bold mb-1">Support Hours</h3>
+                                        <p class="text-muted mb-0">Monday - Friday<br>9:00 AM - 5:00 PM PST</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h3 class="h5 fw-bold mb-3">Connect With Us</h3>
+                            <div class="d-flex">
+                                <a href="#" class="me-2 social-link">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-facebook text-primary"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="me-2 social-link">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-twitter text-primary"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="me-2 social-link">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-instagram text-primary"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="social-link">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-linkedin text-primary"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-7 animate-on-scroll" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4 p-lg-5">
+                            <h2 class="h3 fw-bold mb-4">Send a Message</h2>
+                            <form method="post">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0">
+                                            <i class="bi bi-person"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0 ps-0" 
+                                              id="name" name="name" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0">
+                                            <i class="bi bi-envelope"></i>
+                                        </span>
+                                        <input type="email" class="form-control border-start-0 ps-0" 
+                                              id="email" name="email" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0">
+                                            <i class="bi bi-chat"></i>
+                                        </span>
+                                        <input type="text" class="form-control border-start-0 ps-0" 
+                                              id="subject" name="subject" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="message" class="form-label">Message</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0">
+                                            <i class="bi bi-pencil"></i>
+                                        </span>
+                                        <textarea class="form-control border-start-0 ps-0" 
+                                                 id="message" name="message" rows="5" required></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary py-2">
+                                        <i class="bi bi-send me-2"></i>Send Message
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm rounded-4 mb-5 animate-on-scroll" data-aos="fade-up" data-aos-delay="200">
+                <div class="card-body p-4">
+                    <h2 class="h4 fw-bold mb-4">Frequently Asked Questions</h2>
+                    
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    How do I create an account?
+                                </button>
+                            </h3>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    To create an account, click on the "Register" button in the top navigation bar. Fill out the registration form with your username, email, and password, then click "Create Account". You'll then be able to log in with your credentials.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    What file types are supported for upload?
+                                </button>
+                            </h3>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    FotoShr supports the most common image formats including JPEG, PNG, GIF, and WebP. We recommend JPEG for photographs and PNG for images with transparency. Maximum file size is 10MB per image.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Can I delete my uploaded images?
+                                </button>
+                            </h3>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes, you can delete any image you've uploaded. Navigate to the image's details page and click the delete button (trash icon). You'll need to confirm the deletion. Once deleted, the image cannot be recovered.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item border-0 shadow-sm rounded">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    How can I reset my password?
+                                </button>
+                            </h3>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    If you've forgotten your password, go to the login page and click on "Forgot password?". Enter your email address, and we'll send you instructions for resetting your password. If you're logged in, you can change your password in the Settings page.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out',
+      once: true
+    });
+    
+    // Simple form validation example
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+      contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // In a real implementation, you would send the form data to the server
+        // For demo purposes, we'll just show an alert
+        alert('Thank you for your message! We will get back to you soon.');
+        contactForm.reset();
+      });
+    }
+    
+    // Additional animations for social links
+    const socialLinks = document.querySelectorAll('.social-link');
+    
+    socialLinks.forEach(link => {
+      link.addEventListener('mouseenter', function() {
+        this.querySelector('div').style.transform = 'translateY(-5px)';
+        this.querySelector('div').style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+        this.querySelector('i').style.transform = 'scale(1.1)';
+      });
+      
+      link.addEventListener('mouseleave', function() {
+        this.querySelector('div').style.transform = 'translateY(0)';
+        this.querySelector('div').style.boxShadow = 'none';
+        this.querySelector('i').style.transform = 'scale(1)';
+      });
+    });
+  });
+</script>
+{% endblock %} 

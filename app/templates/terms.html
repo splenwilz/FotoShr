@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}FotoShr - Terms of Service{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+    .terms-hero {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        padding: 4rem 0;
+        border-radius: 15px;
+        margin-bottom: 4rem;
+    }
+    
+    .terms-section {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .terms-section:last-child {
+        border-bottom: none;
+    }
+    
+    .terms-section h2 {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .terms-section h2:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background-color: #2c5282;
+        margin-top: 0.5rem;
+    }
+    
+    .terms-section h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .toc-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .toc-container h3 {
+        margin-top: 0;
+    }
+    
+    .toc-container ul {
+        padding-left: 1.5rem;
+    }
+    
+    .toc-container li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .toc-link {
+        color: #2c5282;
+        text-decoration: none;
+    }
+    
+    .toc-link:hover {
+        text-decoration: underline;
+    }
+    
+    .last-updated {
+        font-style: italic;
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+    
+    /* Dark mode adjustments */
+    .dark-mode .terms-hero {
+        background: linear-gradient(to right, #1a365d, #0d2438);
+    }
+    
+    .dark-mode .terms-section {
+        border-bottom-color: #2c5282;
+    }
+    
+    .dark-mode .toc-container {
+        background-color: #1a365d;
+    }
+    
+    .dark-mode .toc-link {
+        color: #4a69dd;
+    }
+    
+    .dark-mode .last-updated {
+        color: #a0aec0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Terms Hero -->
+    <div class="terms-hero animate-on-scroll" data-aos="fade-up">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-5 fw-bold mb-3">Terms of Service</h1>
+                    <p class="text-muted fs-5">Please read these terms carefully before using FotoShr</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <p class="last-updated animate-on-scroll" data-aos="fade-up">Last Updated: April 30, 2024</p>
+            
+            <!-- Table of Contents -->
+            <div class="toc-container animate-on-scroll" data-aos="fade-up">
+                <h3 class="h5 fw-bold mb-3">Contents</h3>
+                <ul class="mb-0">
+                    <li><a href="#intro" class="toc-link">1. Introduction</a></li>
+                    <li><a href="#accounts" class="toc-link">2. User Accounts</a></li>
+                    <li><a href="#content" class="toc-link">3. User Content</a></li>
+                    <li><a href="#rights" class="toc-link">4. Intellectual Property Rights</a></li>
+                    <li><a href="#prohibited" class="toc-link">5. Prohibited Uses</a></li>
+                    <li><a href="#termination" class="toc-link">6. Termination</a></li>
+                    <li><a href="#disclaimer" class="toc-link">7. Disclaimer of Warranties</a></li>
+                    <li><a href="#liability" class="toc-link">8. Limitation of Liability</a></li>
+                    <li><a href="#indemnification" class="toc-link">9. Indemnification</a></li>
+                    <li><a href="#governing" class="toc-link">10. Governing Law</a></li>
+                    <li><a href="#changes" class="toc-link">11. Changes to Terms</a></li>
+                    <li><a href="#contact" class="toc-link">12. Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <!-- Introduction -->
+            <div id="intro" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">1. Introduction</h2>
+                <p>Welcome to FotoShr. These Terms of Service ("Terms") govern your access to and use of the FotoShr website, mobile application, and services (collectively, the "Service"). By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the Terms, you may not access the Service.</p>
+                
+                <p>The Service is operated by FotoShr, Inc. ("we," "us," or "our"). We provide a platform for users to upload, store, organize, and share photographs and other visual content.</p>
+                
+                <p>By accessing or using the Service, you represent and warrant that you are at least 13 years of age and have the legal capacity to enter into these Terms. If you are under 18, you represent that you have your parent's or legal guardian's permission to use the Service.</p>
+            </div>
+            
+            <!-- User Accounts -->
+            <div id="accounts" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">2. User Accounts</h2>
+                <p>When you create an account with us, you must provide accurate, complete, and current information. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account.</p>
+                
+                <p>You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password. We encourage you to use strong passwords (e.g., passwords that use a combination of upper and lower case letters, numbers, and symbols) with your account. You agree not to disclose your password to any third party and to take sole responsibility for any activities or actions under your account, whether or not you have authorized such activities or actions.</p>
+                
+                <p>You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.</p>
+                
+                <p>We reserve the right to refuse service, terminate accounts, remove or edit content, or cancel orders at our sole discretion.</p>
+            </div>
+            
+            <!-- User Content -->
+            <div id="content" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">3. User Content</h2>
+                <p>Our Service allows you to upload, store, and share content, including photographs, images, text, comments, and other materials (collectively, "User Content"). You are solely responsible for your User Content and the consequences of posting or publishing it.</p>
+                
+                <p>By uploading, posting, or otherwise making available any User Content on the Service, you represent and warrant that:</p>
+                <ul>
+                    <li>You own or have obtained all necessary rights, licenses, consents, permissions, and releases to use and authorize us to use your User Content as necessary to provide the Service;</li>
+                    <li>Your User Content does not violate or infringe upon the rights of any third party, including copyright, trademark, privacy, publicity, or other personal or proprietary rights;</li>
+                    <li>Your User Content does not contain material that is defamatory, obscene, indecent, abusive, offensive, harassing, violent, hateful, inflammatory, or otherwise objectionable;</li>
+                    <li>Your User Content does not promote sexually explicit material, violence, discrimination based on race, sex, religion, nationality, disability, sexual orientation, or age;</li>
+                    <li>Your User Content does not violate any applicable law, regulation, or rule;</li>
+                    <li>Your User Content does not include any personal or identifying information about individuals without their consent;</li>
+                    <li>Your User Content does not impersonate any person or entity or otherwise misrepresent your identity or affiliation with any person or entity.</li>
+                </ul>
+                
+                <p>We do not claim ownership of your User Content. However, by posting User Content on or through the Service, you grant us a worldwide, non-exclusive, royalty-free license (with the right to sublicense) to use, copy, reproduce, process, adapt, modify, publish, transmit, display, and distribute such content in any and all media or distribution methods now known or later developed as part of providing the Service.</p>
+                
+                <p>We respect the intellectual property rights of others and expect users of the Service to do the same. We reserve the right, but not the obligation, to remove or disable access to any User Content that we determine, in our sole discretion, to be potentially illegal, harmful, offensive, or otherwise in violation of these Terms.</p>
+            </div>
+            
+            <!-- Intellectual Property Rights -->
+            <div id="rights" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">4. Intellectual Property Rights</h2>
+                <p>The Service and its original content (excluding User Content), features, and functionality are and will remain the exclusive property of FotoShr and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without our prior written consent.</p>
+                
+                <p>You agree not to reproduce, duplicate, copy, sell, resell, or exploit any portion of the Service, use of the Service, or access to the Service without our express written permission.</p>
+                
+                <h3 class="h5 fw-bold">DMCA Compliance</h3>
+                <p>If you believe that your intellectual property rights have been infringed upon by material on our Service, please notify us by contacting us at <a href="mailto:copyright@fotoshr.com">copyright@fotoshr.com</a>. Please provide the following information:</p>
+                <ul>
+                    <li>A description of the copyrighted work or other intellectual property that you claim has been infringed;</li>
+                    <li>A description of where the material that you claim is infringing is located on the Service;</li>
+                    <li>Your address, telephone number, and email address;</li>
+                    <li>A statement by you that you have a good faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law;</li>
+                    <li>A statement by you, made under penalty of perjury, that the above information in your notice is accurate and that you are the copyright or intellectual property owner or authorized to act on the copyright or intellectual property owner's behalf.</li>
+                </ul>
+                
+                <p>We will promptly remove any infringing material in accordance with the Digital Millennium Copyright Act (DMCA).</p>
+            </div>
+            
+            <!-- Prohibited Uses -->
+            <div id="prohibited" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">5. Prohibited Uses</h2>
+                <p>In addition to other prohibitions as set forth in the Terms, you are prohibited from using the Service or its content:</p>
+                <ul>
+                    <li>For any unlawful purpose;</li>
+                    <li>To solicit others to perform or participate in any unlawful acts;</li>
+                    <li>To violate any international, federal, provincial or state regulations, rules, laws, or local ordinances;</li>
+                    <li>To infringe upon or violate our intellectual property rights or the intellectual property rights of others;</li>
+                    <li>To harass, abuse, insult, harm, defame, slander, disparage, intimidate, or discriminate based on gender, sexual orientation, religion, ethnicity, race, age, national origin, or disability;</li>
+                    <li>To submit false or misleading information;</li>
+                    <li>To upload or transmit viruses or any other type of malicious code that will or may be used in any way that will affect the functionality or operation of the Service or of any related website, other websites, or the Internet;</li>
+                    <li>To collect or track the personal information of others;</li>
+                    <li>To spam, phish, pharm, pretext, spider, crawl, or scrape;</li>
+                    <li>For any obscene or immoral purpose;</li>
+                    <li>To interfere with or circumvent the security features of the Service or any related website, other websites, or the Internet.</li>
+                </ul>
+                
+                <p>We reserve the right to terminate your use of the Service for violating any of the prohibited uses.</p>
+            </div>
+            
+            <!-- Termination -->
+            <div id="termination" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">6. Termination</h2>
+                <p>We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+                
+                <p>Upon termination, your right to use the Service will immediately cease. If you wish to terminate your account, you may simply discontinue using the Service or delete your account through the settings page.</p>
+                
+                <p>All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.</p>
+            </div>
+            
+            <!-- Disclaimer of Warranties -->
+            <div id="disclaimer" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">7. Disclaimer of Warranties</h2>
+                <p>The Service is provided "as is" and "as available" without warranties of any kind, either express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.</p>
+                
+                <p>FotoShr, its subsidiaries, affiliates, and licensors do not warrant that:</p>
+                <ul>
+                    <li>The Service will function uninterrupted, secure, or available at any particular time or location;</li>
+                    <li>Any errors or defects will be corrected;</li>
+                    <li>The Service is free of viruses or other harmful components;</li>
+                    <li>The results of using the Service will meet your requirements.</li>
+                </ul>
+            </div>
+            
+            <!-- Limitation of Liability -->
+            <div id="liability" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">8. Limitation of Liability</h2>
+                <p>In no event shall FotoShr, its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:</p>
+                <ul>
+                    <li>Your access to or use of or inability to access or use the Service;</li>
+                    <li>Any conduct or content of any third party on the Service;</li>
+                    <li>Any content obtained from the Service;</li>
+                    <li>Unauthorized access, use, or alteration of your transmissions or content;</li>
+                </ul>
+                <p>whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage, and even if a remedy set forth herein is found to have failed of its essential purpose.</p>
+                
+                <p>Some jurisdictions do not allow the exclusion of certain warranties or the limitation or exclusion of liability for incidental or consequential damages. Accordingly, some of the above limitations may not apply to you.</p>
+            </div>
+            
+            <!-- Indemnification -->
+            <div id="indemnification" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">9. Indemnification</h2>
+                <p>You agree to defend, indemnify, and hold harmless FotoShr, its directors, employees, partners, agents, suppliers, and affiliates, from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms or your use of the Service, including, but not limited to, your User Content, any use of the Service's content, services, and products other than as expressly authorized in these Terms, or your use of any information obtained from the Service.</p>
+            </div>
+            
+            <!-- Governing Law -->
+            <div id="governing" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">10. Governing Law</h2>
+                <p>These Terms shall be governed and construed in accordance with the laws of the State of California, United States, without regard to its conflict of law provisions.</p>
+                
+                <p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect.</p>
+            </div>
+            
+            <!-- Changes to Terms -->
+            <div id="changes" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">11. Changes to Terms</h2>
+                <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.</p>
+                
+                <p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the Service.</p>
+            </div>
+            
+            <!-- Contact Us -->
+            <div id="contact" class="terms-section animate-on-scroll" data-aos="fade-up">
+                <h2 class="h3 fw-bold">12. Contact Us</h2>
+                <p>If you have any questions about these Terms, please contact us at:</p>
+                
+                <address class="mt-3">
+                    <strong>FotoShr, Inc.</strong><br>
+                    123 Photo Avenue<br>
+                    San Francisco, CA 94158<br>
+                    <br>
+                    <strong>Email:</strong> <a href="mailto:legal@fotoshr.com">legal@fotoshr.com</a>
+                </address>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // Smooth scroll for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                const navbarHeight = 100; // Adjust based on your navbar height
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 
