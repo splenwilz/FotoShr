@@ -1,0 +1,57 @@
+{
+  "name": "FotoShr Development",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.extend.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "formulahendry.code-runner",
+        "ms-vscode.container-tools",
+        "visualstudioexptteam.vscodeintellicode",
+        "streetsidesoftware.code-spell-checker",
+        "njpwerner.autodocstring",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true
+        },
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/*.pyc": true
+        },
+        "sqltools.connections": [
+          {
+            "name": "FotoShr Database",
+            "driver": "PostgreSQL",
+            "server": "db",
+            "port": 5432,
+            "database": "fotoshr",
+            "username": "postgres",
+            "password": "postgres"
+          }
+        ]
+      }
+    }
+  },
+  "forwardPorts": [
+    5000,
+    5432
+  ],
+  "postCreateCommand": "pip install black pylint ipython python-lsp-server python-lsp-black --no-cache-dir",
+  "postStartCommand": "python app.py --host 0.0.0.0 --port 5000 --debug",
+  "remoteUser": "root"
+}

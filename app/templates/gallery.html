@@ -123,9 +123,15 @@
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="position-relative" style="padding-top: 75%; overflow: hidden;">
                     <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none">
+                        {% if image.s3_url %}
+                        <img src="{{ image.s3_url }}" 
+                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+                             alt="{{ image.title }}">
+                        {% else %}
                         <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
                              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
                              alt="{{ image.title }}">
+                        {% endif %}
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; justify-content: center;" 
                              class="img-overlay">
                             <button class="btn btn-sm btn-light rounded-circle">
@@ -162,7 +168,7 @@
                     <div class="d-flex align-items-center text-muted small mb-2">
                         <span><i class="bi bi-person me-1"></i>{{ image.user.username }}</span>
                         <span class="mx-2">•</span>
-                        <span><i class="bi bi-calendar3 me-1"></i>{{ image.upload_date[:10] if image.upload_date else 'N/A' }}</span>
+                        <span><i class="bi bi-calendar3 me-1"></i>{{ image.upload_date.strftime('%Y-%m-%d') if image.upload_date is defined and image.upload_date is not string else (image.upload_date[:10] if image.upload_date else 'N/A') }}</span>
                     </div>
                     {% if image.tags %}
                     <div class="small mt-2">
@@ -199,7 +205,7 @@
                                 <span class="text-muted"><i class="bi bi-heart me-1"></i>{{ image.likes or 0 }}</span>
                             {% endif %}
                         </div>
-                        <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                        <a href="{% if image.s3_url %}{{ image.s3_url }}{% else %}{{ url_for('static', filename='uploads/' + image.filename) }}{% endif %}" 
                            class="btn btn-sm btn-light rounded-circle" 
                            download="{{ image.title }}.{{ image.filename.split('.')[-1] }}" 
                            title="Download">
@@ -243,9 +249,15 @@
                 <div class="col-md-3">
                     <div class="position-relative h-100">
                         <a href="{{ url_for('image', image_id=image.id) }}" class="text-decoration-none">
+                            {% if image.s3_url %}
+                            <img src="{{ image.s3_url }}" 
+                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                 alt="{{ image.title }}">
+                            {% else %}
                             <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
                                  style="width: 100%; height: 100%; object-fit: cover;"
                                  alt="{{ image.title }}">
+                            {% endif %}
                             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; justify-content: center;" 
                                  class="img-overlay">
                                 <button class="btn btn-sm btn-light rounded-circle">
@@ -283,7 +295,7 @@
                         <div class="d-flex align-items-center text-muted small mb-2">
                             <span><i class="bi bi-person me-1"></i>{{ image.user.username }}</span>
                             <span class="mx-2">•</span>
-                            <span><i class="bi bi-calendar3 me-1"></i>{{ image.upload_date[:10] if image.upload_date else 'N/A' }}</span>
+                            <span><i class="bi bi-calendar3 me-1"></i>{{ image.upload_date.strftime('%Y-%m-%d') if image.upload_date is defined and image.upload_date is not string else (image.upload_date[:10] if image.upload_date else 'N/A') }}</span>
                             <span class="mx-2">•</span>
                             <span><i class="bi bi-eye me-1"></i>{{ image.views }}</span>
                             <span class="mx-2">•</span>
@@ -304,7 +316,7 @@
                         {% endif %}
                         
                         <div class="mt-3 d-flex justify-content-end">
-                            <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
+                            <a href="{% if image.s3_url %}{{ image.s3_url }}{% else %}{{ url_for('static', filename='uploads/' + image.filename) }}{% endif %}" 
                                class="btn btn-sm btn-light" 
                                download="{{ image.title }}.{{ image.filename.split('.')[-1] }}">
                                 <i class="bi bi-download me-1"></i>Download

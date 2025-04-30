@@ -1,0 +1,3 @@
+This file contains the chat history between the user and the AI assistant regarding the FotoShr project.
+
+User: can you help me with a zip of the project folder following the instructions? 

@@ -699,14 +699,20 @@
         <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
           <div class="gallery-card">
             <div class="gallery-image-wrapper">
-              <img src="{{ url_for('static', filename='uploads/' + image['filename']) }}" class="gallery-image" alt="{{ image['title'] }}">
+              <a href="{{ url_for('image', image_id=image['id']) }}">
+                {% if image.s3_url %}
+                <img src="{{ image.s3_url }}" class="gallery-image" alt="{{ image['title'] }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='uploads/' + image['filename']) }}" class="gallery-image" alt="{{ image['title'] }}">
+                {% endif %}
+              </a>
             </div>
             <div class="gallery-content">
               <h3 class="gallery-title">{{ image['title'] }}</h3>
               <div class="gallery-info">
                 <div class="gallery-info-item">
                   <i class="bi bi-calendar"></i>
-                  <span>{{ image['upload_date'].split(' ')[0] }}</span>
+                  <span>{{ image['upload_date'].strftime('%Y-%m-%d') if image['upload_date'] is defined and image['upload_date'] is not string else image['upload_date'] }}</span>
                 </div>
                 <div class="gallery-info-item">
                   <i class="bi bi-eye"></i>

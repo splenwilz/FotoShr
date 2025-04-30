@@ -64,9 +64,15 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="card h-100 border-0 shadow-sm image-card">
                             <a href="{{ url_for('image', image_id=image.id) }}" class="image-link">
+                                {% if image.s3_url %}
+                                <img src="{{ image.s3_url }}" 
+                                     alt="{{ image.title }}" 
+                                     class="card-img-top image-thumbnail">
+                                {% else %}
                                 <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
                                      alt="{{ image.title }}" 
                                      class="card-img-top image-thumbnail">
+                                {% endif %}
                             </a>
                             <div class="card-body">
                                 <h5 class="card-title text-truncate">{{ image.title }}</h5>

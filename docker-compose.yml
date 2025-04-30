@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5001:5000"
+    volumes:
+      - .:/app
+    environment:
+      - SECRET_KEY=dev_secret_key
+      - DATABASE_PATH=/app/fotoshr.db
+      - UPLOAD_FOLDER=/app/app/static/uploads
+      - USE_S3=True
+      - AWS_S3_BUCKET=fotoshr-images-776263107620
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - DEBUG=True
+      - USE_POSTGRES=True
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=fotoshr
+    command: python app.py --host 0.0.0.0 --port 5000 --debug
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=fotoshr
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: 

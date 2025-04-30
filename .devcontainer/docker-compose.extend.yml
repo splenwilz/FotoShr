@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  app:
+    volumes:
+      - .:/app:cached
+      # Use a named volume for extensions
+      - fotoshr-vscode-extensions:/root/.vscode-server/extensions
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      # Environment variables for development
+      - DEBUG=True
+      - FLASK_ENV=development
+    # Override the command to keep container running
+    entrypoint: ["/bin/sh", "-c", "while sleep 1000; do :; done"]
+    command: sleep infinity
+
+volumes:
+  fotoshr-vscode-extensions: 

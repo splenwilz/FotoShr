@@ -20,10 +20,17 @@
                 <div class="position-relative">
                     <!-- Image -->
                     <div class="image-container position-relative" style="background-color: #f8f9fa;">
+                        {% if image.s3_url %}
+                        <img src="{{ image.s3_url }}" 
+                             class="img-fluid w-100" 
+                             alt="{{ image.title }}" 
+                             style="max-height: 70vh; object-fit: contain;">
+                        {% else %}
                         <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
                              class="img-fluid w-100" 
                              alt="{{ image.title }}" 
                              style="max-height: 70vh; object-fit: contain;">
+                        {% endif %}
                         
                         <!-- Image controls overlay -->
                         <div class="image-controls position-absolute top-0 end-0 m-3 d-flex gap-2">
@@ -73,24 +80,24 @@
                             <div>
                                 {% if not session.get('user_id') %}
                                     <span class="text-muted me-1">
-                                        <i class="bi bi-heart me-1"></i>{{ likes_count }}
+                                        <i class="bi bi-heart me-1"></i>{{ image.likes }}
                                     </span>
-                                {% elif has_liked %}
+                                {% elif image.user_liked %}
                                     <form method="post" action="{{ url_for('unlike_image', image_id=image.id) }}" class="d-inline">
                                         <button type="submit" class="btn btn-sm text-danger p-0 border-0">
-                                            <i class="bi bi-heart-fill me-1"></i>{{ likes_count }}
+                                            <i class="bi bi-heart-fill me-1"></i>{{ image.likes }}
                                         </button>
                                     </form>
                                 {% else %}
                                     <form method="post" action="{{ url_for('like_image', image_id=image.id) }}" class="d-inline">
                                         <button type="submit" class="btn btn-sm text-muted p-0 border-0 hover-red">
-                                            <i class="bi bi-heart me-1"></i>{{ likes_count }}
+                                            <i class="bi bi-heart me-1"></i>{{ image.likes }}
                                         </button>
                                     </form>
                                 {% endif %}
                             </div>
                         </div>
-                        <small class="text-muted">Uploaded {{ image.upload_date }}</small>
+                        <small class="text-muted">Uploaded {{ image.upload_date.strftime('%Y-%m-%d %H:%M') if image.upload_date is defined and image.upload_date is not string else image.upload_date }}</small>
                     </div>
                 </div>
             </div>
@@ -103,11 +110,11 @@
                     <div class="d-flex align-items-center mb-3">
                         <div class="rounded-circle border me-2 d-flex align-items-center justify-content-center bg-primary" 
                              style="width: 40px; height: 40px; color: white; font-weight: bold;">
-                            {{ image.user.username[0]|upper if image.user and image.user.username else 'U' }}
+                            {{ image.username[0]|upper if image.username else 'U' }}
                         </div>
                         <div>
-                            <h6 class="fw-bold mb-0">{{ image.user.username if image.user and image.user.username else 'Unknown User' }}</h6>
-                            <small class="text-muted">@{{ image.user.username.lower() if image.user and image.user.username else 'unknown' }}</small>
+                            <h6 class="fw-bold mb-0">{{ image.username if image.username else 'Unknown User' }}</h6>
+                            <small class="text-muted">@{{ image.username.lower() if image.username else 'unknown' }}</small>
                         </div>
                     </div>
                     
@@ -142,7 +149,7 @@
                             </li>
                             <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
                                 <span class="text-muted">Upload Date</span>
-                                <span class="fw-medium">{{ image.upload_date }}</span>
+                                <span class="fw-medium">{{ image.upload_date.strftime('%Y-%m-%d %H:%M') if image.upload_date is defined and image.upload_date is not string else image.upload_date }}</span>
                             </li>
                             <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
                                 <span class="text-muted">Views</span>
@@ -150,7 +157,7 @@
                             </li>
                             <li class="list-group-item px-0 py-2 d-flex justify-content-between border-dashed">
                                 <span class="text-muted">Likes</span>
-                                <span class="fw-medium">{{ likes_count }}</span>
+                                <span class="fw-medium">{{ image.likes }}</span>
                             </li>
                         </ul>
                     </div>
@@ -158,11 +165,19 @@
                     <hr class="my-4">
                     
                     <div class="d-grid gap-2">
+                        {% if image.s3_url %}
+                        <a href="{{ image.s3_url }}" 
+                           class="btn btn-primary rounded-pill" 
+                           download="{{ image.title }}.{{ image.filename.split('.')[-1] }}">
+                            <i class="bi bi-download me-2"></i>Download Image
+                        </a>
+                        {% else %}
                         <a href="{{ url_for('static', filename='uploads/' + image.filename) }}" 
                            class="btn btn-primary rounded-pill" 
                            download="{{ image.title }}.{{ image.filename.split('.')[-1] }}">
                             <i class="bi bi-download me-2"></i>Download Image
                         </a>
+                        {% endif %}
                         
                         <button class="btn btn-outline-secondary rounded-pill" type="button" id="copy-link-btn">
                             <i class="bi bi-link-45deg me-2"></i>Copy Image Link
@@ -183,10 +198,17 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body d-flex align-items-center justify-content-center" id="fullscreen-modal-body">
+                {% if image.s3_url %}
+                <img src="{{ image.s3_url }}" 
+                     class="img-fluid" 
+                     alt="{{ image.title }}" 
+                     style="max-height: 90vh; object-fit: contain;">
+                {% else %}
                 <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" 
                      class="img-fluid" 
                      alt="{{ image.title }}" 
                      style="max-height: 90vh; object-fit: contain;">
+                {% endif %}
             </div>
         </div>
     </div>

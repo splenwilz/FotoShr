@@ -6,6 +6,15 @@ from datetime import datetime, timedelta
 import argparse
 from werkzeug.security import check_password_hash, generate_password_hash
 import logging
+import boto3
+from botocore.exceptions import ClientError
+import uuid
+from dotenv import load_dotenv
+import psycopg2
+from psycopg2.extras import DictCursor
+
+# Load environment variables from .env file if it exists
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,69 +22,152 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__, static_folder='app/static', template_folder='app/templates')
 app.logger.setLevel(logging.DEBUG)
 
-app.config['SECRET_KEY'] = 'fotoshr_secret_key'
-app.config['UPLOAD_FOLDER'] = 'app/static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload size
+# Configuration from environment variables
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fotoshr_secret_key')
+app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', 'app/static/uploads')
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # 16MB default
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['DATABASE_PATH'] = os.environ.get('DATABASE_PATH', 'fotoshr.db')
+app.config['USE_S3'] = os.environ.get('USE_S3', 'False').lower() == 'true'
+app.config['AWS_S3_BUCKET'] = os.environ.get('AWS_S3_BUCKET', '')
+app.config['AWS_REGION'] = os.environ.get('AWS_REGION', 'us-east-1')
+app.config['USE_POSTGRES'] = os.environ.get('USE_POSTGRES', 'False').lower() == 'true'
+app.config['POSTGRES_HOST'] = os.environ.get('POSTGRES_HOST', 'db')
+app.config['POSTGRES_PORT'] = os.environ.get('POSTGRES_PORT', '5432')
+app.config['POSTGRES_USER'] = os.environ.get('POSTGRES_USER', 'postgres')
+app.config['POSTGRES_PASSWORD'] = os.environ.get('POSTGRES_PASSWORD', 'postgres')
+app.config['POSTGRES_DB'] = os.environ.get('POSTGRES_DB', 'fotoshr')
 
 # Log app configuration
 app.logger.debug(f"Static folder: {app.static_folder}")
 app.logger.debug(f"Upload folder: {app.config['UPLOAD_FOLDER']}")
+app.logger.debug(f"Using S3: {app.config['USE_S3']}")
+app.logger.debug(f"Using PostgreSQL: {app.config['USE_POSTGRES']}")
 
-# Create upload folder if it doesn't exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Create upload folder if it doesn't exist and we're not using S3
+if not app.config['USE_S3']:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Initialize S3 client if enabled
+s3_client = None
+if app.config['USE_S3']:
+    try:
+        # Create a session with the handsondev profile
+        aws_session = boto3.Session(profile_name='handsondev')
+        s3_client = aws_session.client('s3', region_name=app.config['AWS_REGION'])
+        app.logger.debug(f"S3 client initialized for region {app.config['AWS_REGION']} using handsondev profile")
+    except Exception as e:
+        app.logger.error(f"Failed to initialize S3 client: {str(e)}")
 
 # Database setup
 def get_db_connection():
-    conn = sqlite3.connect('fotoshr.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+    if app.config['USE_POSTGRES']:
+        conn = psycopg2.connect(
+            host=app.config['POSTGRES_HOST'],
+            port=app.config['POSTGRES_PORT'],
+            user=app.config['POSTGRES_USER'],
+            password=app.config['POSTGRES_PASSWORD'],
+            dbname=app.config['POSTGRES_DB'],
+            cursor_factory=DictCursor
+        )
+        conn.autocommit = True
+        return conn
+    else:
+        conn = sqlite3.connect(app.config['DATABASE_PATH'])
+        conn.row_factory = sqlite3.Row
+        return conn
 
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Create users table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    ''')
-    
-    # Create images table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS images (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT,
-        filename TEXT NOT NULL,
-        upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        tags TEXT,
-        views INTEGER DEFAULT 0,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )
-    ''')
-    
-    # Create likes table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS likes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        image_id INTEGER NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id),
-        FOREIGN KEY (image_id) REFERENCES images (id),
-        UNIQUE(user_id, image_id)
-    )
-    ''')
+    if app.config['USE_POSTGRES']:
+        # Create users table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(100) UNIQUE NOT NULL,
+            password VARCHAR(100) NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        
+        # Create images table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS images (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            title VARCHAR(100) NOT NULL,
+            description TEXT,
+            filename VARCHAR(255) NOT NULL,
+            upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            tags VARCHAR(255),
+            views INTEGER DEFAULT 0,
+            s3_url TEXT
+        )
+        ''')
+        
+        # Create likes table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS likes (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            image_id INTEGER NOT NULL REFERENCES images(id),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, image_id)
+        )
+        ''')
+    else:
+        # Create users table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        
+        # Create images table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS images (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT,
+            filename TEXT NOT NULL,
+            upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            tags TEXT,
+            views INTEGER DEFAULT 0,
+            s3_url TEXT,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+        ''')
+        
+        # Create likes table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS likes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            image_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            FOREIGN KEY (image_id) REFERENCES images (id),
+            UNIQUE(user_id, image_id)
+        )
+        ''')
     
     conn.commit()
     conn.close()
+
+# Get last inserted ID
+def get_last_id(conn, cursor):
+    if app.config['USE_POSTGRES']:
+        return cursor.fetchone()[0]
+    else:
+        return conn.execute('SELECT last_insert_rowid()').fetchone()[0]
 
 # Initialize database on startup
 init_db()
@@ -84,13 +176,75 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+# Helper function to upload file to S3
+def upload_file_to_s3(file_data, file_name):
+    if not s3_client:
+        app.logger.error("S3 client not initialized")
+        return None
+    
+    try:
+        # Generate a unique object name
+        object_name = f"{uuid.uuid4().hex}_{file_name}"
+        s3_client.upload_fileobj(file_data, app.config['AWS_S3_BUCKET'], object_name)
+        
+        # Generate a pre-signed URL that expires in 1 hour
+        url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': app.config['AWS_S3_BUCKET'], 'Key': object_name},
+            ExpiresIn=3600
+        )
+        return {"url": url, "object_name": object_name}
+    except ClientError as e:
+        app.logger.error(f"Error uploading to S3: {str(e)}")
+        return None
+
+# Helper function to get a pre-signed URL for an S3 object
+def get_s3_presigned_url(object_name):
+    if not s3_client:
+        app.logger.error("S3 client not initialized")
+        return None
+    
+    try:
+        url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': app.config['AWS_S3_BUCKET'], 'Key': object_name},
+            ExpiresIn=3600
+        )
+        return url
+    except ClientError as e:
+        app.logger.error(f"Error generating pre-signed URL: {str(e)}")
+        return None
+
 # Routes
 @app.route('/')
 def index():
     conn = get_db_connection()
-    images = conn.execute('SELECT * FROM images ORDER BY upload_date DESC').fetchall()
-    conn.close()
-    return render_template('index.html', images=images)
+    cursor = conn.cursor()
+    
+    try:
+        if app.config['USE_POSTGRES']:
+            cursor.execute('SELECT * FROM images ORDER BY upload_date DESC')
+            images = cursor.fetchall()
+        else:
+            images = conn.execute('SELECT * FROM images ORDER BY upload_date DESC').fetchall()
+        
+        # Process images to get S3 URLs if needed
+        processed_images = []
+        for img in images:
+            img_dict = dict(img)
+            if app.config['USE_S3'] and img_dict.get('filename'):
+                # If using S3 and we have a filename (which should be the S3 object name)
+                img_dict['s3_url'] = get_s3_presigned_url(img_dict['filename'])
+            processed_images.append(img_dict)
+        
+        app.logger.debug(f"Index page loaded with {len(processed_images)} images")
+    except Exception as e:
+        app.logger.error(f"Error in index route: {str(e)}")
+        processed_images = []
+    finally:
+        conn.close()
+    
+    return render_template('index.html', images=processed_images)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -99,8 +253,16 @@ def login():
         password = request.form['password']
         
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE username = ? AND password = ?',
-                          (username, password)).fetchone()
+        cursor = conn.cursor()
+        
+        if app.config['USE_POSTGRES']:
+            cursor.execute('SELECT * FROM users WHERE username = %s AND password = %s',
+                         (username, password))
+            user = cursor.fetchone()
+        else:
+            user = conn.execute('SELECT * FROM users WHERE username = ? AND password = ?',
+                              (username, password)).fetchone()
+        
         conn.close()
         
         if user:
@@ -120,13 +282,20 @@ def register():
         email = request.form['email']
         
         conn = get_db_connection()
+        cursor = conn.cursor()
+        
         try:
-            conn.execute('INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
-                       (username, password, email))
+            if app.config['USE_POSTGRES']:
+                cursor.execute('INSERT INTO users (username, password, email) VALUES (%s, %s, %s)',
+                             (username, password, email))
+            else:
+                conn.execute('INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
+                           (username, password, email))
+            
             conn.commit()
             flash('Registration successful! Please log in.')
             return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
+        except (sqlite3.IntegrityError, psycopg2.IntegrityError):
             flash('Username or email already exists')
         finally:
             conn.close()
@@ -158,7 +327,13 @@ def profile(user_id=None):
     
     # Get user information
     conn = get_db_connection()
-    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    cursor = conn.cursor()
+    
+    if app.config['USE_POSTGRES']:
+        cursor.execute('SELECT * FROM users WHERE id = %s', (user_id,))
+        user = cursor.fetchone()
+    else:
+        user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
     
     if not user:
         flash('User not found!')
@@ -175,28 +350,47 @@ def profile(user_id=None):
             pass
     
     # Get user's images
-    images = conn.execute(
-        'SELECT * FROM images WHERE user_id = ? ORDER BY upload_date DESC', 
-        (user_id,)
-    ).fetchall()
+    if app.config['USE_POSTGRES']:
+        cursor.execute(
+            'SELECT * FROM images WHERE user_id = %s ORDER BY upload_date DESC', 
+            (user_id,)
+        )
+        images = cursor.fetchall()
+    else:
+        images = conn.execute(
+            'SELECT * FROM images WHERE user_id = ? ORDER BY upload_date DESC', 
+            (user_id,)
+        ).fetchall()
     
     # Check if likes table exists
-    cursor = conn.cursor()
-    likes_table_exists = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='likes'").fetchone()
-    
-    # Get total likes for the user's images
     total_likes = 0
-    if likes_table_exists:
-        # Count likes from the likes table
-        total_likes_result = conn.execute('''
-            SELECT COUNT(*) as total_likes 
-            FROM likes 
-            WHERE image_id IN (SELECT id FROM images WHERE user_id = ?)
-        ''', (user_id,)).fetchone()
-        if total_likes_result:
-            total_likes = total_likes_result[0]
+    if app.config['USE_POSTGRES']:
+        cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'likes')")
+        likes_table_exists = cursor.fetchone()[0]
+        
+        if likes_table_exists:
+            cursor.execute('''
+                SELECT COUNT(*) as total_likes 
+                FROM likes 
+                WHERE image_id IN (SELECT id FROM images WHERE user_id = %s)
+            ''', (user_id,))
+            total_likes_result = cursor.fetchone()
+            if total_likes_result:
+                total_likes = total_likes_result[0]
+    else:
+        cursor = conn.cursor()
+        likes_table_exists = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='likes'").fetchone()
+        
+        if likes_table_exists:
+            total_likes_result = conn.execute('''
+                SELECT COUNT(*) as total_likes 
+                FROM likes 
+                WHERE image_id IN (SELECT id FROM images WHERE user_id = ?)
+            ''', (user_id,)).fetchone()
+            if total_likes_result:
+                total_likes = total_likes_result[0]
     
-    # Process images to convert date strings to datetime objects
+    # Process images to convert date strings to datetime objects and add S3 URLs
     processed_images = []
     for image in images:
         image_dict = dict(image)
@@ -209,6 +403,11 @@ def profile(user_id=None):
             except ValueError:
                 # If parsing fails, leave as is
                 image_dict['created_at'] = None
+        
+        # Get S3 URL if using S3
+        if app.config['USE_S3'] and image_dict.get('filename'):
+            image_dict['s3_url'] = get_s3_presigned_url(image_dict['filename'])
+        
         processed_images.append(image_dict)
     
     # Calculate statistics
@@ -224,39 +423,79 @@ def profile(user_id=None):
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    # Check if user is logged in
     if 'user_id' not in session:
-        flash('Please log in to upload images')
+        flash('You need to be logged in to upload images!')
         return redirect(url_for('login'))
     
     if request.method == 'POST':
+        # Check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
         
         file = request.files['file']
         
+        # If user does not select file, browser also
+        # submit an empty part without filename
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
         
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            # Add timestamp to filename to make it unique
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            
-            title = request.form['title']
+            # Get form data
+            title = request.form.get('title', 'Untitled')
             description = request.form.get('description', '')
             tags = request.form.get('tags', '')
             
-            conn = get_db_connection()
-            conn.execute('INSERT INTO images (user_id, title, description, filename, tags) VALUES (?, ?, ?, ?, ?)',
-                       (session['user_id'], title, description, filename, tags))
-            conn.commit()
-            conn.close()
+            # Secure the filename
+            filename = secure_filename(file.filename)
             
-            flash('Image uploaded successfully')
-            return redirect(url_for('index'))
+            # Handle file storage (S3 or local)
+            s3_url = None
+            if app.config['USE_S3']:
+                # Upload to S3
+                s3_result = upload_file_to_s3(file, filename)
+                if s3_result:
+                    filename = s3_result['object_name']  # Store S3 object name in database
+                    s3_url = s3_result['url']
+                else:
+                    flash('Error uploading to cloud storage')
+                    return redirect(request.url)
+            else:
+                # Save locally
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+            
+            # Save to database
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            try:
+                if app.config['USE_POSTGRES']:
+                    cursor.execute(
+                        'INSERT INTO images (user_id, title, description, filename, tags, s3_url) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id',
+                        (session['user_id'], title, description, filename, tags, s3_url)
+                    )
+                    image_id = cursor.fetchone()[0]
+                    conn.commit()
+                else:
+                    conn.execute(
+                        'INSERT INTO images (user_id, title, description, filename, tags, s3_url) VALUES (?, ?, ?, ?, ?, ?)',
+                        (session['user_id'], title, description, filename, tags, s3_url)
+                    )
+                    conn.commit()
+                    image_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+                
+                app.logger.info(f"Image uploaded successfully: id={image_id}, filename={filename}, s3_url={s3_url}")
+                flash('Image uploaded successfully!')
+                return redirect(url_for('image', image_id=image_id))
+            except Exception as e:
+                app.logger.error(f"Error saving image to database: {str(e)}")
+                flash('Error saving image information to database')
+                return redirect(request.url)
+            finally:
+                conn.close()
     
     return render_template('upload.html')
 
@@ -266,6 +505,7 @@ def search():
     
     try:
         conn = get_db_connection()
+        cursor = conn.cursor()
         
         if query:
             # Get filter parameters
@@ -341,30 +581,55 @@ def search():
             app.logger.info(f"Search query: {sql_query}, params: {params}")
             
             # Execute the query
-            results = conn.execute(sql_query, params).fetchall()
+            if app.config['USE_POSTGRES']:
+                # Replace ? with %s for PostgreSQL
+                sql_query = sql_query.replace('?', '%s')
+                cursor.execute(sql_query, params)
+                results = cursor.fetchall()
+            else:
+                results = conn.execute(sql_query, params).fetchall()
             
             # Process images to include user data
             images = []
             for img in results:
                 img_dict = dict(img)
                 img_dict['user'] = {'username': img['username']}
+                
+                # Generate S3 URL if needed
+                if app.config['USE_S3'] and img_dict.get('filename'):
+                    img_dict['s3_url'] = get_s3_presigned_url(img_dict['filename'])
+                
                 images.append(img_dict)
                 
             app.logger.info(f"Found {len(images)} search results for '{query}'")
         else:
             # If no query, get some recent images to display
-            results = conn.execute('''
-                SELECT i.*, u.username 
-                FROM images i
-                JOIN users u ON i.user_id = u.id
-                ORDER BY i.upload_date DESC LIMIT 6
-            ''').fetchall()
+            if app.config['USE_POSTGRES']:
+                cursor.execute('''
+                    SELECT i.*, u.username 
+                    FROM images i
+                    JOIN users u ON i.user_id = u.id
+                    ORDER BY i.upload_date DESC LIMIT 6
+                ''')
+                results = cursor.fetchall()
+            else:
+                results = conn.execute('''
+                    SELECT i.*, u.username 
+                    FROM images i
+                    JOIN users u ON i.user_id = u.id
+                    ORDER BY i.upload_date DESC LIMIT 6
+                ''').fetchall()
             
             # Process images to include user data
             images = []
             for img in results:
                 img_dict = dict(img)
                 img_dict['user'] = {'username': img['username']}
+                
+                # Generate S3 URL if needed
+                if app.config['USE_S3'] and img_dict.get('filename'):
+                    img_dict['s3_url'] = get_s3_presigned_url(img_dict['filename'])
+                
                 images.append(img_dict)
     
     except Exception as e:
@@ -387,6 +652,7 @@ def gallery():
     per_page = 12
     
     conn = get_db_connection()
+    cursor = conn.cursor()
     
     # Sort based on parameter
     if sort == 'oldest':
@@ -466,7 +732,13 @@ def gallery():
     
     # Get total count for pagination
     try:
-        total = conn.execute(sql_count, params).fetchone()[0]
+        if app.config['USE_POSTGRES']:
+            # Replace ? with %s for PostgreSQL
+            pg_sql_count = sql_count.replace('?', '%s')
+            cursor.execute(pg_sql_count, params)
+            total = cursor.fetchone()[0]
+        else:
+            total = conn.execute(sql_count, params).fetchone()[0]
     except Exception as e:
         app.logger.error(f"Error getting count: {str(e)}")
         total = 0
@@ -475,17 +747,34 @@ def gallery():
     
     # Calculate pagination
     offset = (page - 1) * per_page
-    sql_query += f' ORDER BY {order_by} LIMIT ? OFFSET ?'
-    params.append(per_page)
-    params.append(offset)
+    sql_query += f' ORDER BY {order_by}'
+    
+    if app.config['USE_POSTGRES']:
+        sql_query += f' LIMIT {per_page} OFFSET {offset}'
+        params_copy = params.copy()  # Create a copy of params since we won't add to it for Postgres
+    else:
+        sql_query += ' LIMIT ? OFFSET ?'
+        params.append(per_page)
+        params.append(offset)
     
     try:
         app.logger.debug(f"Gallery query: {sql_query}, params: {params}")
-        images_raw = conn.execute(sql_query, params).fetchall()
         
-        # Check if likes table exists
-        cursor = conn.cursor()
-        likes_table_exists = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='likes'").fetchone()
+        if app.config['USE_POSTGRES']:
+            # Replace ? with %s for PostgreSQL
+            pg_sql_query = sql_query.replace('?', '%s')
+            cursor.execute(pg_sql_query, params_copy)
+            images_raw = cursor.fetchall()
+            
+            # Check if likes table exists
+            cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'likes')")
+            likes_table_exists = cursor.fetchone()[0]
+        else:
+            images_raw = conn.execute(sql_query, params).fetchall()
+            
+            # Check if likes table exists
+            cursor = conn.cursor()
+            likes_table_exists = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='likes'").fetchone()
         
         # Process images to include user data
         images = []
@@ -495,12 +784,20 @@ def gallery():
             
             # Count likes for this image if the likes table exists
             if likes_table_exists:
-                likes_count = conn.execute('SELECT COUNT(*) FROM likes WHERE image_id = ?', 
-                                        (img['id'],)).fetchone()[0]
+                if app.config['USE_POSTGRES']:
+                    cursor.execute('SELECT COUNT(*) FROM likes WHERE image_id = %s', (img['id'],))
+                    likes_count = cursor.fetchone()[0]
+                else:
+                    likes_count = conn.execute('SELECT COUNT(*) FROM likes WHERE image_id = ?', 
+                                            (img['id'],)).fetchone()[0]
                 img_dict['likes'] = likes_count
             else:
                 img_dict['likes'] = 0
-                
+            
+            # Generate S3 URL if needed
+            if app.config['USE_S3'] and img_dict.get('filename'):
+                img_dict['s3_url'] = get_s3_presigned_url(img_dict['filename'])
+            
             # Log image data for debugging
             app.logger.debug(f"Image data: id={img_dict['id']}, title={img_dict['title']}, filename={img_dict['filename']}")
             app.logger.debug(f"Static URL: {url_for('static', filename='uploads/' + img_dict['filename'])}")
@@ -510,9 +807,14 @@ def gallery():
         # Get liked images for the current user
         liked_images = []
         if 'user_id' in session and likes_table_exists:
-            liked = conn.execute('SELECT image_id FROM likes WHERE user_id = ?', 
-                            (session['user_id'],)).fetchall()
-            liked_images = [row['image_id'] for row in liked]
+            if app.config['USE_POSTGRES']:
+                cursor.execute('SELECT image_id FROM likes WHERE user_id = %s', (session['user_id'],))
+                liked = cursor.fetchall()
+                liked_images = [row['image_id'] for row in liked]
+            else:
+                liked = conn.execute('SELECT image_id FROM likes WHERE user_id = ?', 
+                                (session['user_id'],)).fetchall()
+                liked_images = [row['image_id'] for row in liked]
         
         # Pagination URLs
         next_url = url_for('gallery', page=page+1, sort=sort, query=query, category=category, 
@@ -549,78 +851,93 @@ def gallery():
 @app.route('/image/<int:image_id>')
 def image(image_id):
     conn = get_db_connection()
+    cursor = conn.cursor()
     
-    # Check if the image exists
-    image = conn.execute('SELECT * FROM images WHERE id = ?', (image_id,)).fetchone()
+    if app.config['USE_POSTGRES']:
+        cursor.execute('SELECT * FROM images WHERE id = %s', (image_id,))
+        image = cursor.fetchone()
+    else:
+        image = conn.execute('SELECT * FROM images WHERE id = ?', (image_id,)).fetchone()
     
     if not image:
-        flash('Image not found')
+        flash('Image not found!')
+        conn.close()
         return redirect(url_for('index'))
     
-    # Get username
-    user = conn.execute('SELECT username FROM users WHERE id = ?', (image['user_id'],)).fetchone()
-    if user:
-        image = dict(image)
-        image['user'] = {'username': user['username']}
-        image['views'] = 0  # Default value
+    # Convert to dictionary
+    image_dict = dict(image)
     
-    # Check if views column exists
-    cursor = conn.cursor()
-    column_exists = cursor.execute("PRAGMA table_info(images)").fetchall()
-    views_exists = any(col[1] == 'views' for col in column_exists)
+    # Increment view count
+    if app.config['USE_POSTGRES']:
+        cursor.execute('UPDATE images SET views = views + 1 WHERE id = %s', (image_id,))
+    else:
+        conn.execute('UPDATE images SET views = views + 1 WHERE id = ?', (image_id,))
     
-    if not views_exists:
-        # Add views column if it doesn't exist
-        try:
-            conn.execute('ALTER TABLE images ADD COLUMN views INTEGER DEFAULT 0')
-            conn.commit()
-        except:
-            # Column might have been added in another request
-            pass
+    conn.commit()
     
-    # Update view count
-    try:
-        conn.execute('UPDATE images SET views = COALESCE(views, 0) + 1 WHERE id = ?', (image_id,))
-        conn.commit()
-    except sqlite3.OperationalError:
-        # Handle potential race condition or database lock
-        pass
+    # Get user info
+    if app.config['USE_POSTGRES']:
+        cursor.execute('SELECT username FROM users WHERE id = %s', (image_dict['user_id'],))
+        user = cursor.fetchone()
+    else:
+        user = conn.execute('SELECT username FROM users WHERE id = ?', (image_dict['user_id'],)).fetchone()
     
-    # Check if likes table exists
-    table_exists = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='likes'").fetchone()
+    image_dict['username'] = user['username'] if user else 'Unknown'
     
-    # Get likes count and check if user has liked it
-    likes_count = 0
-    has_liked = False
+    # Get like info
+    if app.config['USE_POSTGRES']:
+        cursor.execute('SELECT COUNT(*) FROM likes WHERE image_id = %s', (image_id,))
+        like_count = cursor.fetchone()[0]
+    else:
+        like_count = conn.execute('SELECT COUNT(*) FROM likes WHERE image_id = ?', (image_id,)).fetchone()[0]
     
-    if table_exists:
-        likes_count = conn.execute('SELECT COUNT(*) FROM likes WHERE image_id = ?', (image_id,)).fetchone()[0]
+    image_dict['likes'] = like_count
+    
+    # Check if current user has liked this image
+    user_liked = False
+    if 'user_id' in session:
+        if app.config['USE_POSTGRES']:
+            cursor.execute('SELECT id FROM likes WHERE user_id = %s AND image_id = %s', 
+                         (session['user_id'], image_id))
+            result = cursor.fetchone()
+        else:
+            result = conn.execute('SELECT id FROM likes WHERE user_id = ? AND image_id = ?', 
+                                 (session['user_id'], image_id)).fetchone()
         
-        if 'user_id' in session:
-            has_liked = conn.execute('SELECT 1 FROM likes WHERE image_id = ? AND user_id = ?', 
-                                  (image_id, session['user_id'])).fetchone() is not None
+        user_liked = True if result else False
+    
+    image_dict['user_liked'] = user_liked
+    
+    # Get S3 URL if using S3
+    if app.config['USE_S3'] and image_dict.get('filename'):
+        image_dict['s3_url'] = get_s3_presigned_url(image_dict['filename'])
     
     conn.close()
-    
-    return render_template('image_detail.html', image=image, likes_count=likes_count, has_liked=has_liked)
+    return render_template('image_detail.html', image=image_dict)
 
 @app.route('/like_image/<int:image_id>', methods=['POST'])
 def like_image(image_id):
     if 'user_id' not in session:
-        flash('Please log in to like images')
+        flash('You need to be logged in to like images!')
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    try:
-        conn.execute('INSERT INTO likes (user_id, image_id) VALUES (?, ?)', 
-                   (session['user_id'], image_id))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        # User already liked this image
-        pass
-    finally:
-        conn.close()
+    cursor = conn.cursor()
     
+    try:
+        if app.config['USE_POSTGRES']:
+            cursor.execute('INSERT INTO likes (user_id, image_id) VALUES (%s, %s)',
+                         (session['user_id'], image_id))
+        else:
+            conn.execute('INSERT INTO likes (user_id, image_id) VALUES (?, ?)',
+                       (session['user_id'], image_id))
+        
+        conn.commit()
+    except (sqlite3.IntegrityError, psycopg2.IntegrityError):
+        # User has already liked this image
+        pass
+    
+    conn.close()
     return redirect(url_for('image', image_id=image_id))
 
 @app.route('/unlike_image/<int:image_id>', methods=['POST'])
@@ -629,8 +946,15 @@ def unlike_image(image_id):
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    conn.execute('DELETE FROM likes WHERE user_id = ? AND image_id = ?', 
-               (session['user_id'], image_id))
+    cursor = conn.cursor()
+    
+    if app.config['USE_POSTGRES']:
+        cursor.execute('DELETE FROM likes WHERE user_id = %s AND image_id = %s',
+                     (session['user_id'], image_id))
+    else:
+        conn.execute('DELETE FROM likes WHERE user_id = ? AND image_id = ?',
+                   (session['user_id'], image_id))
+    
     conn.commit()
     conn.close()
     
@@ -640,70 +964,107 @@ def unlike_image(image_id):
 def delete_image(image_id):
     # Check if user is logged in
     if 'user_id' not in session:
-        flash('Please log in to delete images')
+        flash('You need to be logged in to delete images!')
         return redirect(url_for('login'))
     
     conn = get_db_connection()
+    cursor = conn.cursor()
     
-    # Check if image exists and belongs to the current user
-    image = conn.execute('SELECT * FROM images WHERE id = ? AND user_id = ?', 
-                       (image_id, session['user_id'])).fetchone()
+    # Get the image details
+    if app.config['USE_POSTGRES']:
+        cursor.execute('SELECT * FROM images WHERE id = %s AND user_id = %s', 
+                     (image_id, session['user_id']))
+        image = cursor.fetchone()
+    else:
+        image = conn.execute('SELECT * FROM images WHERE id = ? AND user_id = ?', 
+                           (image_id, session['user_id'])).fetchone()
     
     if not image:
-        flash('Image not found or you do not have permission to delete it')
+        flash('Image not found or you do not have permission to delete it!')
+        conn.close()
         return redirect(url_for('index'))
     
-    # Get the filename to delete the file
-    filename = image['filename']
-    
-    # Delete image from database
-    conn.execute('DELETE FROM images WHERE id = ?', (image_id,))
-    
     # Delete associated likes
-    cursor = conn.cursor()
-    table_exists = cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='likes'").fetchone()
-    if table_exists:
+    if app.config['USE_POSTGRES']:
+        cursor.execute('DELETE FROM likes WHERE image_id = %s', (image_id,))
+    else:
         conn.execute('DELETE FROM likes WHERE image_id = ?', (image_id,))
+    
+    # Delete the image from the database
+    if app.config['USE_POSTGRES']:
+        cursor.execute('DELETE FROM images WHERE id = %s', (image_id,))
+    else:
+        conn.execute('DELETE FROM images WHERE id = ?', (image_id,))
     
     conn.commit()
     conn.close()
     
-    # Delete the actual file
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    # Delete the file based on storage method
+    if app.config['USE_S3']:
+        try:
+            # Delete from S3 bucket
+            if s3_client and image['filename']:
+                s3_client.delete_object(
+                    Bucket=app.config['AWS_S3_BUCKET'],
+                    Key=image['filename']
+                )
+                app.logger.info(f"Deleted image from S3: {image['filename']}")
+        except Exception as e:
+            app.logger.error(f"Error deleting image from S3: {str(e)}")
+    else:
+        # Delete from local storage
+        try:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], image['filename'])
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                app.logger.info(f"Deleted local image file: {file_path}")
+        except Exception as e:
+            app.logger.error(f"Error deleting local image file: {str(e)}")
     
-    flash('Image deleted successfully')
+    flash('Image deleted successfully!')
     return redirect(url_for('index'))
 
 @app.route('/edit_image/<int:image_id>', methods=['GET', 'POST'])
 def edit_image(image_id):
     # Check if user is logged in
     if 'user_id' not in session:
-        flash('Please log in to edit images')
+        flash('You need to be logged in to edit images!')
         return redirect(url_for('login'))
     
     conn = get_db_connection()
+    cursor = conn.cursor()
     
-    # Check if image exists and belongs to the current user
-    image = conn.execute('SELECT * FROM images WHERE id = ? AND user_id = ?', 
-                       (image_id, session['user_id'])).fetchone()
+    # Get the image details
+    if app.config['USE_POSTGRES']:
+        cursor.execute('SELECT * FROM images WHERE id = %s AND user_id = %s', 
+                     (image_id, session['user_id']))
+        image = cursor.fetchone()
+    else:
+        image = conn.execute('SELECT * FROM images WHERE id = ? AND user_id = ?', 
+                           (image_id, session['user_id'])).fetchone()
     
     if not image:
-        flash('Image not found or you do not have permission to edit it')
+        flash('Image not found or you do not have permission to edit it!')
+        conn.close()
         return redirect(url_for('index'))
     
     if request.method == 'POST':
-        title = request.form['title']
+        # Update image details
+        title = request.form.get('title', 'Untitled')
         description = request.form.get('description', '')
         tags = request.form.get('tags', '')
         
-        conn.execute('UPDATE images SET title = ?, description = ?, tags = ? WHERE id = ?',
-                   (title, description, tags, image_id))
+        if app.config['USE_POSTGRES']:
+            cursor.execute('UPDATE images SET title = %s, description = %s, tags = %s WHERE id = %s',
+                         (title, description, tags, image_id))
+        else:
+            conn.execute('UPDATE images SET title = ?, description = ?, tags = ? WHERE id = ?',
+                       (title, description, tags, image_id))
+        
         conn.commit()
         conn.close()
         
-        flash('Image updated successfully')
+        flash('Image updated successfully!')
         return redirect(url_for('image', image_id=image_id))
     
     conn.close()
@@ -809,20 +1170,11 @@ def faq():
     return render_template('faq.html')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run the Flask app')
-    parser.add_argument('--host', default='127.0.0.1', help='Host to run the app on')
-    parser.add_argument('--port', type=int, default=5002, help='Port to run the app on')
+    parser = argparse.ArgumentParser(description='Run the FotoShr application')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to run the app on')
+    parser.add_argument('--port', type=int, default=5000, help='Port to run the app on')
+    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+    
     args = parser.parse_args()
     
-    # Print sample image URLs for testing
-    conn = get_db_connection()
-    images = conn.execute('SELECT id, filename FROM images LIMIT 3').fetchall()
-    conn.close()
-    
-    if images:
-        for img in images:
-            app.logger.info(f"Test image URL (browser): http://{args.host}:{args.port}/static/uploads/{img['filename']}")
-    else:
-        app.logger.warning("No images found in database to test URLs")
-    
-    app.run(debug=True, host=args.host, port=args.port) 
+    app.run(host=args.host, port=args.port, debug=args.debug) 
