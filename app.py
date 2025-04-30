@@ -31,6 +31,8 @@ app.config['DATABASE_PATH'] = os.environ.get('DATABASE_PATH', 'fotoshr.db')
 app.config['USE_S3'] = os.environ.get('USE_S3', 'False').lower() == 'true'
 app.config['AWS_S3_BUCKET'] = os.environ.get('AWS_S3_BUCKET', '')
 app.config['AWS_REGION'] = os.environ.get('AWS_REGION', 'us-east-1')
+app.config['AWS_ACCESS_KEY_ID'] = os.environ.get('AWS_ACCESS_KEY_ID', '')
+app.config['AWS_SECRET_ACCESS_KEY'] = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 app.config['USE_POSTGRES'] = os.environ.get('USE_POSTGRES', 'False').lower() == 'true'
 app.config['POSTGRES_HOST'] = os.environ.get('POSTGRES_HOST', 'db')
 app.config['POSTGRES_PORT'] = os.environ.get('POSTGRES_PORT', '5432')
@@ -52,10 +54,14 @@ if not app.config['USE_S3']:
 s3_client = None
 if app.config['USE_S3']:
     try:
-        # Create a session with the handsondev profile
-        aws_session = boto3.Session(profile_name='handsondev')
-        s3_client = aws_session.client('s3', region_name=app.config['AWS_REGION'])
-        app.logger.debug(f"S3 client initialized for region {app.config['AWS_REGION']} using handsondev profile")
+        # Use environment variables for AWS credentials instead of profile
+        s3_client = boto3.client(
+            's3',
+            region_name=app.config['AWS_REGION'],
+            aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY']
+        )
+        app.logger.debug(f"S3 client initialized for region {app.config['AWS_REGION']} using environment variables")
     except Exception as e:
         app.logger.error(f"Failed to initialize S3 client: {str(e)}")
 

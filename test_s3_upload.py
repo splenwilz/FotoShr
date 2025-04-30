@@ -11,12 +11,18 @@ def test_s3_upload():
         # Get S3 configuration from environment variables
         aws_s3_bucket = os.environ.get('AWS_S3_BUCKET')
         aws_region = os.environ.get('AWS_REGION')
+        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
         
         print(f"Testing S3 upload to bucket: {aws_s3_bucket} in region: {aws_region}")
         
-        # Create a boto3 S3 client with the handsondev profile
-        session = boto3.Session(profile_name='handsondev')
-        s3_client = session.client('s3', region_name=aws_region)
+        # Use environment variables for AWS credentials instead of profile
+        s3_client = boto3.client(
+            's3',
+            region_name=aws_region,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
         
         # Check if client is initialized
         print("S3 client initialized successfully")
@@ -60,8 +66,12 @@ if __name__ == "__main__":
         print("\nS3 integration is working correctly!")
         
         # List bucket contents to verify
-        session = boto3.Session(profile_name='handsondev')
-        s3 = session.client('s3', region_name=os.environ.get('AWS_REGION'))
+        s3 = boto3.client(
+            's3',
+            region_name=os.environ.get('AWS_REGION'),
+            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')
+        )
         print("\nBucket contents:")
         response = s3.list_objects_v2(Bucket=os.environ.get('AWS_S3_BUCKET'))
         

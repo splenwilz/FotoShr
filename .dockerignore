@@ -1,3 +1,28 @@
+# Ignore CDK asset directories
+aws/cdk.out/
+
+# Python cache files
+**/__pycache__/
+**/*.py[cod]
+*$py.class
+
+# Virtual environments
+**/.venv/
+**/venv/
+**/.env/
+
+# Node modules
+**/node_modules/
+
+# Common development directories
+**/.git/
+**/.github/
+**/.vscode/
+**/.idea/
+
+# Logs
+**/*.log
+
 .git
 .pytest_cache
 .venv
